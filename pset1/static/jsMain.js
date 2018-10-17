@@ -118,7 +118,7 @@ function PrintSearchTable(data)
        tableRef = document.getElementById('search_table_result').getElementsByTagName('tbody')[0];
        for (let index = 0; index < data.length; index++)
        {
-              html += "<tr><td><a href='/bookinfo'>" + data[index].isbn + "</a></td>"
+              html += "<tr><td><a href='/bookinfo?book="  + data[index].isbn + "'>" + data[index].isbn + "</a></td>"
                      +"<td>" + data[index].title + "</td>"
                      + "<td>" + data[index].author + "</td>"
                      + "<td>" + data[index].year + "</td></tr>";

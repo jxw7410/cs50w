@@ -87,10 +87,17 @@ def search():
 
 
 
-@app.route("/bookinfo", methods = ["GET", "POST"])
+@app.route("/bookinfo")
+@app.route("/bookinfo/<isbn>")
 @login_required
-def bookinfo(isbn):
-    return render_template("bookinfo.html", isbn = isbn)
+def bookinfo(isbn=None):
+    if isbn:
+        return render_template("bookinfo.html")
+
+    book_isbn = request.args.get("book")
+    print(book_isbn)
+
+    return render_template("bookinfo.html")
 
 
 @app.route("/selectpage", methods = ["POST"])
