@@ -87,10 +87,17 @@ def search():
 
 
 
-@app.route("/bookinfo", methods = ["GET", "POST"])
+@app.route("/bookinfo")
+@app.route("/bookinfo/<isbn>")
 @login_required
-def bookinfo(isbn):
-    return render_template("bookinfo.html", isbn = isbn)
+def bookinfo(isbn=None):
+    if isbn:
+        return render_template("bookinfo.html")
+
+    book_isbn = request.args.get("book")
+    getBookReviewAPI(book_isbn)
+
+    return render_template("bookinfo.html")
 
 
 @app.route("/selectpage", methods = ["POST"])
@@ -107,6 +114,19 @@ def selectpage():
     page_list = paginate_list(query)
     return jsonify({"request" : True, "data" : data, "page_list" : page_list})
 
+
+@app.route("/about")
+@login_required
+def about():
+    return render_template("about.html")
+
+@app.errorhandler(404)
+@app.errorhandler(500)
+def page_not_found(e):
+    if e == 404:
+        return render_template("error.html", errorcode = 404), 404
+    else:
+        return render_template("error.html", errorcode = 500), 500
 
 
 if __name__ == "__main__":

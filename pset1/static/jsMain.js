@@ -1,7 +1,11 @@
+//Not using local storage because it's overkill for what is intended
+let temporary_search_storage = {};
+
 (function(){
        document.addEventListener("DOMContentLoaded", function(){
               if (window.location.pathname == "/login")
               {
+                     setNavActive("Login");
                      document.querySelector("#login").onsubmit = function(){
                      const request = new XMLHttpRequest();
                      const username = document.querySelector("#username").value;
@@ -24,6 +28,7 @@
               }
               if (window.location.pathname == "/")
               {
+                     setNavActive("Search");
                      var book = "";
                      document.querySelector("#search_bar").onsubmit = function()
                      {
@@ -35,8 +40,15 @@
                        const response = JSON.parse(request.responseText)
                        if (response.request)
                        {
+                            if (!isEmpty(temporary_search_storage))
+                                   temporary_search_storage = {}
                             PrintSearchTable(response.data);
                             PrintPageList(response.page_list)
+                            temporary_search_storage[response.page_list.current_page] =
+                            {
+                                   "data" : response.data,
+                                   "page_list" : response.page_list
+                            };
                        }
                        else
                             alert("Item in search not found");
@@ -52,30 +64,43 @@
                      {
                             if(event.target.className == "paginate")
                             {
-                                   const request = new XMLHttpRequest();
-                                   let pageNum = event.target.getAttribute("tag");
-                                   request.open('POST', '/selectpage');
-                                   request.onload = function()
+                                   var pageNum = event.target.getAttribute("tag");
+                                   if (pageNum in temporary_search_storage)
                                    {
-                                          const response = JSON.parse(request.responseText)
-                                          if(response.request)
+                                          PrintSearchTable(temporary_search_storage[pageNum].data);
+                                          PrintPageList(temporary_search_storage[pageNum].page_list);
+                                   }
+                                   else{
+                                          const request = new XMLHttpRequest();
+                                          request.open('POST', '/selectpage');
+                                          request.onload = function()
                                           {
-                                                 PrintSearchTable(response.data);
-                                                 PrintPageList(response.page_list)
-                                          }
-                                          else
-                                                 alert("error")
-                                   };
-                                   const data = new FormData();
-                                   data.append("book", book);
-                                   data.append("page", pageNum);
-                                   request.send(data);
-                                   return false;
+                                                 const response = JSON.parse(request.responseText)
+                                                 if(response.request)
+                                                 {
+                                                        PrintSearchTable(response.data);
+                                                        PrintPageList(response.page_list)
+                                                        temporary_search_storage[response.page_list.current_page] =
+                                                        {
+                                                               "data" : response.data,
+                                                               "page_list" : response.page_list
+                                                        };
+                                                 }
+                                                 else
+                                                        alert("error")
+                                          };
+                                          const data = new FormData();
+                                          data.append("book", book);
+                                          data.append("page", pageNum);
+                                          request.send(data);
+                                          return false;
+                                   }
                             }
                      });
               }
               if (window.location.pathname == "/register")
               {
+                     setNavActive("Register");
                      document.querySelector("#register").onsubmit = function()
                      {
                      const request = new XMLHttpRequest();
@@ -106,6 +131,11 @@
                      return false;
                  };
               }
+
+              if (window.location.pathname == "/about")
+              {
+                     setNavActive("About");
+              }
        });
 })();
 //display search table, no pagination
@@ -118,7 +148,7 @@ function PrintSearchTable(data)
        tableRef = document.getElementById('search_table_result').getElementsByTagName('tbody')[0];
        for (let index = 0; index < data.length; index++)
        {
-              html += "<tr><td><a href='/bookinfo'>" + data[index].isbn + "</a></td>"
+              html += "<tr><td><a href='/bookinfo?book="  + data[index].isbn + "'>" + data[index].isbn + "</a></td>"
                      +"<td>" + data[index].title + "</td>"
                      + "<td>" + data[index].author + "</td>"
                      + "<td>" + data[index].year + "</td></tr>";
@@ -146,3 +176,25 @@ function PrintPageList(data)
        }
        paginationElement.innerHTML += html;
 }
+
+
+function isEmpty(obj)
+{
+       for(var key in obj)
+              if(obj.hasOwnProperty(key))
+                     return false;
+       return true;
+}
+
+
+function setNavActive(navtag)
+{
+       res = document.getElementsByClassName("nav-item");
+              for(var i = 0; i < res.length ; i++)
+              {
+                     console.log(res[i].className);
+                     if (res[i].getAttribute("tag") == navtag)
+                            res[i].className += " active";
+              }
+}
+

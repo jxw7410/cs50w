@@ -26,14 +26,14 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 {% if session.user_id %}
                     <ul class="navbar-nav mr-auto">
-                        <li class="nav-item active"><a class="nav-link waves-effect waves-light" href="/">Search</a></li>
-                        <li class="nav-item"><a class="nav-link waves-effect waves-light" href="/about">About</a></li>
+                        <li class="nav-item" tag = "Search"><a class="nav-link waves-effect waves-light"  href="/">Search</a></li>
+                        <li class="nav-item" tag = "About" ><a class="nav-link waves-effect waves-light" href="/about">About</a></li>
                         <li class="nav-item"><a class="nav-link waves-effect waves-light" href="/logout">Log Out</a></li>
                     </ul>
                 {% else %}
                     <ul class="navbar-nav mr-auto">
-                        <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/login">Log In</a></li>
+                        <li class="nav-item" tag = "Login"><a class="nav-link" tag = "Register" href="/login">Log In</a></li>
+                        <li class="nav-item" tag = "Register"><a class="nav-link" tag = "Log In" href="/register">Register</a></li>
                     </ul>
                 {% endif %}
             </div>
