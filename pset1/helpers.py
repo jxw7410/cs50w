@@ -50,3 +50,11 @@ class CachedQuery(object):
     def cached(self, book):
         query_book = mem.cache(_query_book)
         return query_book(book)
+
+
+import requests
+
+def getBookReviewAPI(isbn):
+    Key = "98r6Rf0WkYwjZ4Ztr4lNwg"
+    res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": Key, "isbns": isbn})
+    return res.json()

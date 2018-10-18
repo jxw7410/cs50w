@@ -5,6 +5,7 @@ let temporary_search_storage = {};
        document.addEventListener("DOMContentLoaded", function(){
               if (window.location.pathname == "/login")
               {
+                     setNavActive("Login");
                      document.querySelector("#login").onsubmit = function(){
                      const request = new XMLHttpRequest();
                      const username = document.querySelector("#username").value;
@@ -27,6 +28,7 @@ let temporary_search_storage = {};
               }
               if (window.location.pathname == "/")
               {
+                     setNavActive("Search");
                      var book = "";
                      document.querySelector("#search_bar").onsubmit = function()
                      {
@@ -98,6 +100,7 @@ let temporary_search_storage = {};
               }
               if (window.location.pathname == "/register")
               {
+                     setNavActive("Register");
                      document.querySelector("#register").onsubmit = function()
                      {
                      const request = new XMLHttpRequest();
@@ -127,6 +130,11 @@ let temporary_search_storage = {};
                      request.send(data);
                      return false;
                  };
+              }
+
+              if (window.location.pathname == "/about")
+              {
+                     setNavActive("About");
               }
        });
 })();
@@ -177,3 +185,16 @@ function isEmpty(obj)
                      return false;
        return true;
 }
+
+
+function setNavActive(navtag)
+{
+       res = document.getElementsByClassName("nav-item");
+              for(var i = 0; i < res.length ; i++)
+              {
+                     console.log(res[i].className);
+                     if (res[i].getAttribute("tag") == navtag)
+                            res[i].className += " active";
+              }
+}
+

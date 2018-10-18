@@ -95,7 +95,7 @@ def bookinfo(isbn=None):
         return render_template("bookinfo.html")
 
     book_isbn = request.args.get("book")
-    print(book_isbn)
+    getBookReviewAPI(book_isbn)
 
     return render_template("bookinfo.html")
 
@@ -115,6 +115,10 @@ def selectpage():
     return jsonify({"request" : True, "data" : data, "page_list" : page_list})
 
 
+@app.route("/about")
+@login_required
+def about():
+    return render_template("about.html")
 
 @app.errorhandler(404)
 @app.errorhandler(500)

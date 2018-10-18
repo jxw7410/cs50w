@@ -7,16 +7,21 @@ table, th, td
 
 }
 
-.search_table_pagination
+#search_table_pagination
 {
-    display: inline-block;
+   padding-top: 3px;
 }
 
 .text_paginate
 {
     padding-left: 5px;
-    padding-top: 2px;
+    padding-top: 1px;
     padding-right: 5px;
     padding-bottom: 2px;
     border-style: inset;
+}
+
+.div_paragraph_container
+{
+    text-align: center;
 }
