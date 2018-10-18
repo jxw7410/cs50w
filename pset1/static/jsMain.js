@@ -1,3 +1,6 @@
+//Not using local storage because it's overkill for what is intended
+let temporary_search_storage = {};
+
 (function(){
        document.addEventListener("DOMContentLoaded", function(){
               if (window.location.pathname == "/login")
@@ -35,8 +38,15 @@
                        const response = JSON.parse(request.responseText)
                        if (response.request)
                        {
+                            if (!isEmpty(temporary_search_storage))
+                                   temporary_search_storage = {}
                             PrintSearchTable(response.data);
                             PrintPageList(response.page_list)
+                            temporary_search_storage[response.page_list.current_page] =
+                            {
+                                   "data" : response.data,
+                                   "page_list" : response.page_list
+                            };
                        }
                        else
                             alert("Item in search not found");
@@ -52,25 +62,37 @@
                      {
                             if(event.target.className == "paginate")
                             {
-                                   const request = new XMLHttpRequest();
-                                   let pageNum = event.target.getAttribute("tag");
-                                   request.open('POST', '/selectpage');
-                                   request.onload = function()
+                                   var pageNum = event.target.getAttribute("tag");
+                                   if (pageNum in temporary_search_storage)
                                    {
-                                          const response = JSON.parse(request.responseText)
-                                          if(response.request)
+                                          PrintSearchTable(temporary_search_storage[pageNum].data);
+                                          PrintPageList(temporary_search_storage[pageNum].page_list);
+                                   }
+                                   else{
+                                          const request = new XMLHttpRequest();
+                                          request.open('POST', '/selectpage');
+                                          request.onload = function()
                                           {
-                                                 PrintSearchTable(response.data);
-                                                 PrintPageList(response.page_list)
-                                          }
-                                          else
-                                                 alert("error")
-                                   };
-                                   const data = new FormData();
-                                   data.append("book", book);
-                                   data.append("page", pageNum);
-                                   request.send(data);
-                                   return false;
+                                                 const response = JSON.parse(request.responseText)
+                                                 if(response.request)
+                                                 {
+                                                        PrintSearchTable(response.data);
+                                                        PrintPageList(response.page_list)
+                                                        temporary_search_storage[response.page_list.current_page] =
+                                                        {
+                                                               "data" : response.data,
+                                                               "page_list" : response.page_list
+                                                        };
+                                                 }
+                                                 else
+                                                        alert("error")
+                                          };
+                                          const data = new FormData();
+                                          data.append("book", book);
+                                          data.append("page", pageNum);
+                                          request.send(data);
+                                          return false;
+                                   }
                             }
                      });
               }
@@ -145,4 +167,13 @@ function PrintPageList(data)
                      html+= "<span class=ellipsis></span>";
        }
        paginationElement.innerHTML += html;
+}
+
+
+function isEmpty(obj)
+{
+       for(var key in obj)
+              if(obj.hasOwnProperty(key))
+                     return false;
+       return true;
 }

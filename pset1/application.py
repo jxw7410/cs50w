@@ -116,6 +116,15 @@ def selectpage():
 
 
 
+@app.errorhandler(404)
+@app.errorhandler(500)
+def page_not_found(e):
+    if e == 404:
+        return render_template("error.html", errorcode = 404), 404
+    else:
+        return render_template("error.html", errorcode = 500), 500
+
+
 if __name__ == "__main__":
     session.clear()
     app.run()
