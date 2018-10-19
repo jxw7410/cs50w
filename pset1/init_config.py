@@ -20,7 +20,7 @@ def after_request(response):
 app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/registeredUsers.db' #default database
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/users.db' #default database
 app.config["SQLALCHEMY_BINDS"] = {'books' : 'sqlite:///database/books.db'}#additional databases, these need bind keys
 app.secret_key = "463e07020e43de2e932516aa6e853350" #use if not using Session(app)
 #Session(app) #use if not using secret_key
