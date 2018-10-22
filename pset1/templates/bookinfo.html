@@ -5,7 +5,13 @@
 {% endblock %}
 
 {% block main %}
-    <div>
-        <strong> This Page is under construction.</strong>
+    <div></div>
+        <ul>
+            <li><strong>Book Title: </strong>{{json["title"]}}</li>
+            <li><strong>Book Author: </strong>{{json["author"]}}</li>
+            <li><strong>Year: </strong>{{json["year"]}}</li>
+            <li><strong>Review Count: </strong>{{json["review_counts"]}}</li>
+            <li><strong>Average Score: </strong>{{json["average_scopre"]}}</li>
+        </ul>
     </div>
 {% endblock %}
