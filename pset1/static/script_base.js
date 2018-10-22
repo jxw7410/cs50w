@@ -38,6 +38,7 @@ let temporary_search_storage = {};
                      request.onload = function ()
                      {
                        const response = JSON.parse(request.responseText)
+                       console.log(response)
                        if (response.request)
                        {
                             if (!isEmpty(temporary_search_storage))
@@ -48,7 +49,7 @@ let temporary_search_storage = {};
                             {
                                    "data" : response.data,
                                    "page_list" : response.page_list
-                            };
+                            }
                        }
                        else
                             alert("Item in search not found");
@@ -56,11 +57,9 @@ let temporary_search_storage = {};
                      const data = new FormData();
                      data.append("book", book);
                      request.send(data);
-
                      return false;
                      };
-                     //workaround to add an event to html element that is dynamically generated
-                     document.body.addEventListener('click', function(event)
+                     document.querySelector('#search_table_pagination').addEventListener('click', function(event)
                      {
                             if(event.target.className == "paginate")
                             {
@@ -192,9 +191,9 @@ function setNavActive(navtag)
        res = document.getElementsByClassName("nav-item");
               for(var i = 0; i < res.length ; i++)
               {
-                     console.log(res[i].className);
                      if (res[i].getAttribute("tag") == navtag)
                             res[i].className += " active";
               }
 }
+
 

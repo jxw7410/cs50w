@@ -13,13 +13,6 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
         dbUser = User.query.filter_by(username=username).first()
-        '''
-        newtable = fetch_table(userdbEngine, "test1")
-        connection = userdbEngine.connect()
-        connection.execute(newtable.insert(values=dict(Value='this')))
-        connection.close()
-        '''
-        print(sessionengine.query(newtable).all())
         if dbUser is None:
             return jsonify({"request": False})
 
@@ -92,13 +85,35 @@ def search():
 @login_required
 def bookinfo(isbn=None):
     if isbn:
-        return render_template("bookinfo.html")
+        get_review = getBookReviewAPI(isbn)
+        if get_review:
+            create_table(isbn) #only creates a table if it doesn't exist
+        query = Books.query.filter_by(isbn = isbn).first().dictFormat()
+        for item in get_review["book"]:
+            print(item)
+            query["review_counts"] = item["reviews_count"]
+            query["average_score"] = item["average_rating"]
+        return render_template("bookinfo.html", isbnJson = query)
 
-    book_isbn = request.args.get("book")
-    getBookReviewAPI(book_isbn)
+    else:
+        book_isbn = request.args.get("book")
+        get_review = getBookReviewAPI(book_isbn)
+        print(get_review)
+        if get_review:
+            create_table(book_isbn) #only creates a table if it doesn't exist
+        query = Books.query.filter_by(isbn = book_isbn).first().dictFormat()
+        for item in get_review["books"]:
+            print(item)
+            query["review_counts"] = item["reviews_count"]
+            query["average_score"] = item["average_rating"]
+        return render_template("bookinfo.html", json = query)
 
-    return render_template("bookinfo.html")
 
+@app.route("/getreview")
+@login_required
+def getreview():
+    isbn = request.form.get("isbn")
+    return jsonify({"data": fetch_table(isbn)})
 
 @app.route("/selectpage", methods = ["POST"])
 @login_required
@@ -130,5 +145,4 @@ def page_not_found(e):
 
 
 if __name__ == "__main__":
-    session.clear()
     app.run()
