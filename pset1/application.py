@@ -90,7 +90,6 @@ def bookinfo(isbn=None):
             create_table(isbn) #only creates a table if it doesn't exist
         query = Books.query.filter_by(isbn = isbn).first().dictFormat()
         for item in get_review["book"]:
-            print(item)
             query["review_counts"] = item["reviews_count"]
             query["average_score"] = item["average_rating"]
         return render_template("bookinfo.html", isbnJson = query)
@@ -98,12 +97,10 @@ def bookinfo(isbn=None):
     else:
         book_isbn = request.args.get("book")
         get_review = getBookReviewAPI(book_isbn)
-        print(get_review)
         if get_review:
             create_table(book_isbn) #only creates a table if it doesn't exist
         query = Books.query.filter_by(isbn = book_isbn).first().dictFormat()
         for item in get_review["books"]:
-            print(item)
             query["review_counts"] = item["reviews_count"]
             query["average_score"] = item["average_rating"]
         return render_template("bookinfo.html", json = query)
