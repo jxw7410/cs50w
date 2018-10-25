@@ -30,12 +30,41 @@ let temporary_search_storage = {};
               if(/bookinfo/.test(window.location.href))
               {
                      setReviewButtons();
-
+                     CreateReview();
+                     CancelReview();
               }
 
        });
 })();
 
+
+function CreateReview()
+{
+       document.querySelector('#review-button').onclick = function()
+       {
+              document.getElementById("submit_review_text").style.display = "block";
+              document.getElementById("review-button").style.display = "None";
+              document.getElementById("edit-button").style.display = "None";
+              document.getElementById("delete-button").style.display = "None";
+       }
+       SubmitReviewAsync();
+}
+
+function CancelReview()
+{
+       document.querySelector('#review-cancel-btn').onclick = function()
+       {
+              document.getElementById("submit_review_text").style.display = "None";
+              document.getElementById("review-button").style.display = "inline";
+              document.getElementById("edit-button").style.display = "inline";
+              document.getElementById("delete-button").style.display = "inline";
+       }
+}
+
+function SubmitReviewAsync()
+{
+
+}
 
 function RegisterAsync()
 {

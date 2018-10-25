@@ -56,8 +56,8 @@ def fetch_table(table_name, engine = userdbEngine):
     return metadata.tables[table_name]
 
 #To post message into table
-def insert_table(table, string):
+def insert_table(table, string, rating, userid):
     connection = userdbEngine.connect()
-    connection.execute(table.insert(values=dict(Value=string)))
+    connection.execute(table.insert(values={"User_Id" : userid, "Rating" : rating, "Value" : string}))
     connection.close()
     print(sessionengine.query(table).all())
