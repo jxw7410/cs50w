@@ -1,136 +1,25 @@
 //Not using local storage because it's overkill for what is intended
 let temporary_search_storage = {};
 
-
-//All AJAX Queries
+//Init Function
 (function(){
        document.addEventListener("DOMContentLoaded", function(){
               if (window.location.pathname == "/login")
               {
                      setNavActive("Login");
-                     document.querySelector("#login").onsubmit = function(){
-                     const request = new XMLHttpRequest();
-                     const username = document.querySelector("#username").value;
-                     const password = document.querySelector("#password").value;
-                     request.open('POST', '/login');
-                     request.onload = function ()
-                     {
-                            const response = JSON.parse(request.responseText)
-                            if (response.request)
-                                   window.location.href = "/"
-                            else
-                                   alert("Username or Password is incorrect or does not exist.");
-                            };
-                            const data = new FormData();
-                            data.append("username", username);
-                            data.append("password", password);
-                            request.send(data);
-                            return false;
-                     };
+                     LoginAsync();
               }
               if (window.location.pathname == "/")
               {
                      setNavActive("Search");
-                     var book = "";
-                     document.querySelector("#search_bar").onsubmit = function()
-                     {
-                     const request = new XMLHttpRequest();
-                     book = document.querySelector("#book").value;
-                     request.open('POST', '/search');
-                     request.onload = function ()
-                     {
-                       const response = JSON.parse(request.responseText)
-                       console.log(response)
-                       if (response.request)
-                       {
-                            if (!isEmpty(temporary_search_storage))
-                                   temporary_search_storage = {}
-                            PrintSearchTable(response.data);
-                            PrintPageList(response.page_list)
-                            temporary_search_storage[response.page_list.current_page] =
-                            {
-                                   "data" : response.data,
-                                   "page_list" : response.page_list
-                            }
-                       }
-                       else
-                            alert("Item in search not found");
-                     };
-                     const data = new FormData();
-                     data.append("book", book);
-                     request.send(data);
-                     return false;
-                     };
-                     document.querySelector('#search_table_pagination').addEventListener('click', function(event)
-                     {
-                            if(event.target.className == "paginate")
-                            {
-                                   var pageNum = event.target.getAttribute("tag");
-                                   if (pageNum in temporary_search_storage)
-                                   {
-                                          PrintSearchTable(temporary_search_storage[pageNum].data);
-                                          PrintPageList(temporary_search_storage[pageNum].page_list);
-                                   }
-                                   else{
-                                          const request = new XMLHttpRequest();
-                                          request.open('POST', '/selectpage');
-                                          request.onload = function()
-                                          {
-                                                 const response = JSON.parse(request.responseText)
-                                                 if(response.request)
-                                                 {
-                                                        PrintSearchTable(response.data);
-                                                        PrintPageList(response.page_list)
-                                                        temporary_search_storage[response.page_list.current_page] =
-                                                        {
-                                                               "data" : response.data,
-                                                               "page_list" : response.page_list
-                                                        };
-                                                 }
-                                                 else
-                                                        alert("error")
-                                          };
-                                          const data = new FormData();
-                                          data.append("book", book);
-                                          data.append("page", pageNum);
-                                          request.send(data);
-                                          return false;
-                                   }
-                            }
-                     });
+                     SearchBarAsync();
+                     PaginationAsync();
+
               }
               if (window.location.pathname == "/register")
               {
                      setNavActive("Register");
-                     document.querySelector("#register").onsubmit = function()
-                     {
-                     const request = new XMLHttpRequest();
-                     const username = document.querySelector("#username").value;
-                     const password = document.querySelector("#password").value;
-                     const passwordAgain = document.querySelector("#password_again").value;
-                     request.open('POST', '/register');
-                     request.onload = function ()
-                     {
-                            const response = JSON.parse(request.responseText)
-                            if (response.request)
-                                   window.location.href = "/"
-                            else
-                            {
-                                   if (data.errorcode == 101)
-                                          alert("Passwords Do not match");
-                                   else if (data.errorcode == 102)
-                                          alert("Username already exists");
-                                   else
-                                          alert("Unknown Error");
-                       }
-                     };
-                     const data = new FormData();
-                     data.append("username", username);
-                     data.append("password", password);
-                     data.append("passwordAgain", passwordAgain)
-                     request.send(data);
-                     return false;
-                 };
+                     RegisterAsync();
               }
 
               if (window.location.pathname == "/about")
@@ -140,21 +29,159 @@ let temporary_search_storage = {};
 
               if(/bookinfo/.test(window.location.href))
               {
-                     if(document.querySelector("#my_review_text").value == null)
-                     {
-                          document.querySelector("#edit-button").className += " disabled";
-                          document.querySelector("#delete-button").className += " disabled";
-                     }
-                     else
-                     {
-                          document.querySelector("#review-button").className += " disabled";
-                     }
+                     setReviewButtons();
+
               }
 
        });
 })();
 
 
+function RegisterAsync()
+{
+       document.querySelector("#register").onsubmit = function()
+       {
+              const request = new XMLHttpRequest();
+              const username = document.querySelector("#username").value;
+              const password = document.querySelector("#password").value;
+              const passwordAgain = document.querySelector("#password_again").value;
+              request.open('POST', '/register');
+              request.onload = function ()
+              {
+                     const response = JSON.parse(request.responseText)
+                     if (response.request)
+                            window.location.href = "/"
+                     else
+                     {
+                            if (data.errorcode == 101)
+                                   alert("Passwords Do not match");
+                            else if (data.errorcode == 102)
+                                   alert("Username already exists");
+                            else
+                                   alert("Unknown Error");
+                     }
+              };
+              const data = new FormData();
+              data.append("username", username);
+              data.append("password", password);
+              data.append("passwordAgain", passwordAgain)
+              request.send(data);
+              return false;
+       };
+}
+
+function PaginationAsync()
+{
+       document.querySelector('#search_table_pagination').addEventListener('click', function(event)
+       {
+              if(event.target.className == "paginate")
+              {
+                     var pageNum = event.target.getAttribute("tag");
+                     if (pageNum in temporary_search_storage)
+                     {
+                            PrintSearchTable(temporary_search_storage[pageNum].data);
+                            PrintPageList(temporary_search_storage[pageNum].page_list);
+                     }
+                     else
+                     {
+                            const request = new XMLHttpRequest();
+                            request.open('POST', '/selectpage');
+                            request.onload = function()
+                            {
+                                   const response = JSON.parse(request.responseText)
+                                   if(response.request)
+                                   {
+                                          PrintSearchTable(response.data);
+                                          PrintPageList(response.page_list)
+                                          temporary_search_storage[response.page_list.current_page] =
+                                          {
+                                                 "data" : response.data,
+                                                 "page_list" : response.page_list
+                                          };
+                                   }
+                                   else
+                                          alert("error")
+                            };
+                            const data = new FormData();
+                            data.append("book", book);
+                            data.append("page", pageNum);
+                            request.send(data);
+                            return false;
+                     }
+              }
+       });
+}
+
+function SearchBarAsync()
+{
+       var book = "";
+       document.querySelector("#search_bar").onsubmit = function()
+       {
+              const request = new XMLHttpRequest();
+              book = document.querySelector("#book").value;
+              request.open('POST', '/search');
+              request.onload = function ()
+              {
+                     const response = JSON.parse(request.responseText)
+                     console.log(response)
+                     if (response.request)
+                     {
+                            if (!isEmpty(temporary_search_storage))
+                                   temporary_search_storage = {}
+                            PrintSearchTable(response.data);
+                            PrintPageList(response.page_list)
+                            temporary_search_storage[response.page_list.current_page] =
+                            {
+                                   "data" : response.data,
+                                   "page_list" : response.page_list
+                            }
+                     }
+              else
+                     alert("Item in search not found");
+              };
+              const data = new FormData();
+              data.append("book", book);
+              request.send(data);
+              return false;
+       };
+}
+
+function LoginAsync()
+{
+       document.querySelector("#login").onsubmit = function(){
+              const request = new XMLHttpRequest();
+              const username = document.querySelector("#username").value;
+              const password = document.querySelector("#password").value;
+              request.open('POST', '/login');
+              request.onload = function ()
+              {
+                     const response = JSON.parse(request.responseText)
+                     if (response.request)
+                            window.location.href = "/"
+                     else
+                            alert("Username or Password is incorrect or does not exist.");
+                     };
+                     const data = new FormData();
+                     data.append("username", username);
+                     data.append("password", password);
+                     request.send(data);
+                     return false;
+              };
+}
+
+function setReviewButtons()
+{
+       if(document.querySelector("#my_review_text").value == null)
+              {
+                     document.querySelector("#edit-button").className += " disabled";
+                     document.querySelector("#delete-button").className += " disabled";
+              }
+              else
+              {
+                     document.querySelector("#review-button").className += " disabled";
+              }
+
+}
 
 //display search table, no pagination
 function PrintSearchTable(data)
