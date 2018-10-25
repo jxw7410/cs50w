@@ -1,6 +1,8 @@
 //Not using local storage because it's overkill for what is intended
 let temporary_search_storage = {};
 
+
+//All AJAX Queries
 (function(){
        document.addEventListener("DOMContentLoaded", function(){
               if (window.location.pathname == "/login")
@@ -135,8 +137,25 @@ let temporary_search_storage = {};
               {
                      setNavActive("About");
               }
+
+              if(/bookinfo/.test(window.location.href))
+              {
+                     if(document.querySelector("#my_review_text").value == null)
+                     {
+                          document.querySelector("#edit-button").className += " disabled";
+                          document.querySelector("#delete-button").className += " disabled";
+                     }
+                     else
+                     {
+                          document.querySelector("#review-button").className += " disabled";
+                     }
+              }
+
        });
 })();
+
+
+
 //display search table, no pagination
 function PrintSearchTable(data)
 {

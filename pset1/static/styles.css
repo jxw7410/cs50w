@@ -25,3 +25,10 @@ table, th, td
 {
     text-align: center;
 }
+
+
+.btn.btn-default.review-ctm
+{
+    padding-left: 5px;
+    padding-right: 5px;
+}

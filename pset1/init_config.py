@@ -6,7 +6,10 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 
-
+#Turning off logging
+import logging
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 #Prevents flask from sending cached scripts to the browser (why does it do this?)
 @app.after_request
