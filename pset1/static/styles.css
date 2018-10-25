@@ -27,8 +27,13 @@ table, th, td
 }
 
 
-.btn.btn-default.review-ctm
+#submit_review_text
 {
-    padding-left: 5px;
-    padding-right: 5px;
+    display: none;
 }
+
+#review_text_btns
+{
+    display: inline;
+}
+

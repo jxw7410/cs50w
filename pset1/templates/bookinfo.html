@@ -23,11 +23,25 @@
             {%endif%}
         </p>
     </div>
+
+    <div id='submit_review_text'>
+        Stars: <input autocomplete="off" id="stars" maxlength="4" size="4"/><br>
+        Review:<br>
+        <textarea rows="4" cols="50" id="comment" autofocus form="reviewform"></textarea>
+        <span id="review_text_btns">
+            <form id="reviewform">
+                <input type="submit">
+                <button type="button" id = "review-cancel-btn">Cancel</button>
+            </form>
+
+        </span>
+    </div>
+
     <!--user review button-->
     <div>
-                <button class="btn btn-primary" type="submit" id="review-button">Create Review</button>
-                <button class="btn btn-primary" type="submit" id="edit-button">Edit Review</button>
-                <button class="btn btn-primary" type="submit" id="delete-button">Delete Review</button>
+                <button class="btn btn-primary" type="button" id="review-button">Create Review</button>
+                <button class="btn btn-primary" type="button" id="edit-button">Edit Review</button>
+                <button class="btn btn-primary" type="button" id="delete-button">Delete Review</button>
     </div>
 
 {% endblock %}
