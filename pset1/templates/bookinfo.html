@@ -6,6 +6,42 @@
 
 {% block main %}
     <div>
-        <strong> This Page is under construction.</strong>
+        <ul>
+            <li><strong>Book Title: </strong>{{json["title"]}}</li>
+            <li><strong>Book Author: </strong>{{json["author"]}}</li>
+            <li><strong>Year: </strong>{{json["year"]}}</li>
+            <li><strong>Review Count: </strong>{{json["review_counts"]}}</li>
+            <li><strong>Average Score: </strong>{{json["average_score"]}}</li>
+        </ul>
     </div>
+    <!--My Review-->
+    <div>
+        <strong>My Review: {{stars}}</strong>
+        <p id = "my_review_text">
+            {%if text%}
+                <textarea>{{text}}</textarea>
+            {%endif%}
+        </p>
+    </div>
+
+    <div id='submit_review_text'>
+        Stars: <input autocomplete="off" id="stars" maxlength="4" size="4"/><br>
+        Review:<br>
+        <textarea rows="4" cols="50" id="comment" autofocus form="reviewform"></textarea>
+        <span id="review_text_btns">
+            <form id="reviewform">
+                <input type="submit">
+                <button type="button" id = "review-cancel-btn">Cancel</button>
+            </form>
+
+        </span>
+    </div>
+
+    <!--user review button-->
+    <div>
+                <button class="btn btn-primary" type="button" id="review-button">Create Review</button>
+                <button class="btn btn-primary" type="button" id="edit-button">Edit Review</button>
+                <button class="btn btn-primary" type="button" id="delete-button">Delete Review</button>
+    </div>
+
 {% endblock %}

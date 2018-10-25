@@ -25,3 +25,15 @@ table, th, td
 {
     text-align: center;
 }
+
+
+#submit_review_text
+{
+    display: none;
+}
+
+#review_text_btns
+{
+    display: inline;
+}
+

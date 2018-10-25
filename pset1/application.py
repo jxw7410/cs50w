@@ -6,11 +6,6 @@ import os
 from helpers import *
 
 
-'''
-Original source code had SQLAlchemy engine, but if flask quick start (in dbModels) is available, don't need engine
-check out the page SQLAchemy flask, it basically does some configurations for users with regards to SQLAlchemy.session
-'''
-
 @app.route("/login", methods = ["GET", "POST"])
 def login():
     session.clear()
@@ -18,7 +13,6 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
         dbUser = User.query.filter_by(username=username).first()
-
         if dbUser is None:
             return jsonify({"request": False})
 
@@ -38,11 +32,11 @@ def register():
         password = request.form.get("password")
         password_again = request.form.get("password_again")
 
+
         if password != password_again:
             return jsonify({"request" : False, "errorcode" : 101})
 
         dbUser = User.query.filter_by(username=username).first()
-
         if dbUser is None:
             User(username = username, password=generate_password_hash(password)).Add()
             dbUser = User.query.filter_by(username = username).first()
@@ -75,7 +69,6 @@ def logout():
 @login_required
 def search():
     book = request.form.get("book")
-
     if not book:
         return jsonify({"request" : False})
 
@@ -92,13 +85,32 @@ def search():
 @login_required
 def bookinfo(isbn=None):
     if isbn:
-        return render_template("bookinfo.html")
+        get_review = getBookReviewAPI(isbn)
+        if get_review:
+            create_table(isbn) #only creates a table if it doesn't exist
+        query = Books.query.filter_by(isbn = isbn).first().dictFormat()
+        for item in get_review["book"]:
+            query["review_counts"] = item["reviews_count"]
+            query["average_score"] = item["average_rating"]
+        return render_template("bookinfo.html", isbnJson = query)
 
-    book_isbn = request.args.get("book")
-    getBookReviewAPI(book_isbn)
+    else:
+        book_isbn = request.args.get("book")
+        get_review = getBookReviewAPI(book_isbn)
+        if get_review:
+            create_table(book_isbn) #only creates a table if it doesn't exist
+        query = Books.query.filter_by(isbn = book_isbn).first().dictFormat()
+        for item in get_review["books"]:
+            query["review_counts"] = item["reviews_count"]
+            query["average_score"] = item["average_rating"]
+        return render_template("bookinfo.html", json = query)
 
-    return render_template("bookinfo.html")
 
+@app.route("/getreview")
+@login_required
+def getreview():
+    isbn = request.form.get("isbn")
+    return jsonify({"data": fetch_table(isbn)})
 
 @app.route("/selectpage", methods = ["POST"])
 @login_required
@@ -130,5 +142,4 @@ def page_not_found(e):
 
 
 if __name__ == "__main__":
-    session.clear()
     app.run()
