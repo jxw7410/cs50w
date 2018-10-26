@@ -32,6 +32,7 @@ let temporary_search_storage = {};
                      setReviewButtons();
                      CreateReview();
                      CancelReview();
+                     SubmitReviewAsync();
               }
 
        });
@@ -47,23 +48,69 @@ function CreateReview()
               document.getElementById("edit-button").style.display = "None";
               document.getElementById("delete-button").style.display = "None";
        }
-       SubmitReviewAsync();
 }
 
 function CancelReview()
 {
        document.querySelector('#review-cancel-btn').onclick = function()
        {
-              document.getElementById("submit_review_text").style.display = "None";
-              document.getElementById("review-button").style.display = "inline";
-              document.getElementById("edit-button").style.display = "inline";
-              document.getElementById("delete-button").style.display = "inline";
+              DefaultState();
        }
+}
+
+function DefaultState()
+{
+       document.getElementById("submit_review_text").style.display = "None";
+       document.getElementById("review-button").style.display = "inline";
+       document.getElementById("edit-button").style.display = "inline";
+       document.getElementById("delete-button").style.display = "inline";
 }
 
 function SubmitReviewAsync()
 {
-
+       document.querySelector('#reviewform').onsubmit = function()
+       {
+              const review = document.querySelector('#review').value;
+              const stars = parseFloat(document.querySelector('#stars').value);
+              var params = ExtractUrl();
+              console.log(review);
+              console.log(stars);
+              console.log(params);
+              if (!stars || (stars > 5 || stars < 0))
+              {
+                     alert("Please submit a valid stars rating");
+                     return false;
+              }
+              else if(review.split(" ") == "")
+              {
+                     alert("Please fill in the review text field");
+                     return false;
+              }
+              else
+              {
+                     const request = new XMLHttpRequest();
+                     request.open('POST','/SubmitReview');
+                     request.onload = function()
+                     {
+                            const response = JSON.parse(request.responseText);
+                            if (response.request)
+                            {
+                                   alert("Okay");
+                                   DefaultState();
+                            }
+                            else
+                            {
+                                   alert("OOF")
+                            }
+                     }
+                     const data = new FormData();
+                     data.append("review", review);
+                     data.append("stars", stars);
+                     data.append("book", params["book"]);
+                     request.send(data);
+                     return false;
+              }
+       }
 }
 
 function RegisterAsync()
@@ -165,8 +212,8 @@ function SearchBarAsync()
                                    "page_list" : response.page_list
                             }
                      }
-              else
-                     alert("Item in search not found");
+                     else
+                            alert("Item in search not found");
               };
               const data = new FormData();
               data.append("book", book);
@@ -272,3 +319,18 @@ function setNavActive(navtag)
 }
 
 
+//function from stackover flow to extra URL
+function ExtractUrl(url = window.location.search.substr(1).split('&'))
+{
+    if (url == "") return {};
+    var params = {};
+    for (var i = 0; i < url.length; ++i)
+    {
+        var parse=url[i].split('=', 2);
+        if (parse.length == 1)
+            params[parse[0]] = "";
+        else
+            params[parse[0]] = decodeURIComponent(parse[1].replace(/\+/g, " "));
+    }
+    return params;
+}

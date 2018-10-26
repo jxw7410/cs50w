@@ -4,7 +4,7 @@ Import order MATTERS
 '''
 import os
 from helpers import *
-
+from errors import *
 
 @app.route("/login", methods = ["GET", "POST"])
 def login():
@@ -23,6 +23,7 @@ def login():
         return jsonify({"request" : True})
 
     return render_template("login.html")
+
 
 
 @app.route("/register", methods = ["GET", "POST"])
@@ -52,11 +53,14 @@ def register():
     return render_template("register.html")
 
 
+
 @app.route("/")
 @app.route("/index")
 @login_required
 def index():
     return render_template("index.html")
+
+
 
 @app.route("/logout")
 @login_required
@@ -65,15 +69,23 @@ def logout():
     return redirect("/")
 
 
+
 @app.route("/search", methods = ["POST"])
 @login_required
 def search():
-    book = request.form.get("book")
+    try:
+        book = request.form.get("book")
+        if(book.replace(" ", "") is ""):
+            raise EmptyInputError
+    except EmptyInputError:
+        return jsonify({"request" : False})
+
     if not book:
         return jsonify({"request" : False})
 
     mem.clear()
     query = paginate_query(CachedQuery().cached(book))
+    print(query)
     data = query_items(query.items)
     page_list = paginate_list(query)
     return jsonify({"request" : True, "data" : data, "page_list" : page_list})
@@ -88,6 +100,9 @@ def bookinfo(isbn=None):
         get_review = getBookReviewAPI(isbn)
         if get_review:
             create_table(isbn) #only creates a table if it doesn't exist
+        else:
+            return render_template("bookinfo.html")
+
         query = Books.query.filter_by(isbn = isbn).first().dictFormat()
         for item in get_review["book"]:
             query["review_counts"] = item["reviews_count"]
@@ -99,6 +114,9 @@ def bookinfo(isbn=None):
         get_review = getBookReviewAPI(book_isbn)
         if get_review:
             create_table(book_isbn) #only creates a table if it doesn't exist
+        else:
+            return render_template("bookinfo.html")
+
         query = Books.query.filter_by(isbn = book_isbn).first().dictFormat()
         for item in get_review["books"]:
             query["review_counts"] = item["reviews_count"]
@@ -106,11 +124,14 @@ def bookinfo(isbn=None):
         return render_template("bookinfo.html", json = query)
 
 
+
 @app.route("/getreview")
 @login_required
 def getreview():
     isbn = request.form.get("isbn")
     return jsonify({"data": fetch_table(isbn)})
+
+
 
 @app.route("/selectpage", methods = ["POST"])
 @login_required
@@ -127,10 +148,34 @@ def selectpage():
     return jsonify({"request" : True, "data" : data, "page_list" : page_list})
 
 
+
+@app.route("/SubmitReview", methods = ["POST"])
+@login_required
+def SubmitReview():
+    try:
+        review = request.form.get("review")
+        stars = float(request.form.get("stars"))
+        isbn = request.form.get("book")
+        if isbn is None:
+            raise isbnNullError
+    except ValueError:
+        return jsonify({"request" : False})
+    except isbnNullError:
+        return jsonify({"request" : False})
+
+    print(review)
+    print(float("{0:.2f}".format(stars)))
+    print(isbn)
+    return jsonify({"request" : True})
+
+
+
 @app.route("/about")
 @login_required
 def about():
     return render_template("about.html")
+
+
 
 @app.errorhandler(404)
 @app.errorhandler(500)
@@ -139,6 +184,8 @@ def page_not_found(e):
         return render_template("error.html", errorcode = 404), 404
     else:
         return render_template("error.html", errorcode = 500), 500
+
+
 
 
 if __name__ == "__main__":
