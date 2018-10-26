@@ -33,6 +33,7 @@ let temporary_search_storage = {};
                      CreateReview();
                      CancelReview();
                      SubmitReviewAsync();
+                     WordCount();
               }
 
        });
@@ -73,9 +74,6 @@ function SubmitReviewAsync()
               const review = document.querySelector('#review').value;
               const stars = parseFloat(document.querySelector('#stars').value);
               var params = ExtractUrl();
-              console.log(review);
-              console.log(stars);
-              console.log(params);
               if (!stars || (stars > 5 || stars < 0))
               {
                      alert("Please submit a valid stars rating");
@@ -95,8 +93,8 @@ function SubmitReviewAsync()
                             const response = JSON.parse(request.responseText);
                             if (response.request)
                             {
-                                   alert("Okay");
                                    DefaultState();
+                                   DisplayReview(review, stars);
                             }
                             else
                             {
@@ -112,6 +110,14 @@ function SubmitReviewAsync()
               }
        }
 }
+
+function DisplayReview(review, stars)
+{
+       document.querySelector("#review-star").innerHTML = stars + " Stars";
+       document.querySelector('#my_review_text').innerHTML = review;
+       setReviewButtons();
+}
+
 
 function RegisterAsync()
 {
@@ -247,15 +253,18 @@ function LoginAsync()
 
 function setReviewButtons()
 {
-       if(document.querySelector("#my_review_text").value == null)
-              {
-                     document.querySelector("#edit-button").className += " disabled";
-                     document.querySelector("#delete-button").className += " disabled";
-              }
-              else
-              {
-                     document.querySelector("#review-button").className += " disabled";
-              }
+       console.log(document.querySelector("#my_review_text").innerHTML);
+       if(document.querySelector("#my_review_text").innerHTML.split(' ') == "")
+       {
+              document.querySelector("#edit-button").className += " disabled";
+              document.querySelector("#delete-button").className += " disabled";
+       }
+       else
+       {
+              document.querySelector("#review-button").className += " disabled";
+              document.querySelector("#edit-button").classList.remove("disabled");
+              document.querySelector("#delete-button").classList.remove("disabled");
+       }
 
 }
 
@@ -333,4 +342,18 @@ function ExtractUrl(url = window.location.search.substr(1).split('&'))
             params[parse[0]] = decodeURIComponent(parse[1].replace(/\+/g, " "));
     }
     return params;
+}
+
+function WordCount()
+{
+       document.querySelector('#review').onkeyup = function()
+       {
+              var wordLimit = 4000;
+              var wordCount = document.querySelector('#review').value;
+              if(parseInt(wordLimit))
+              {
+                     document.querySelector('#word-limit').innerHTML = 4000 - wordCount.length;
+              }
+
+       }
 }

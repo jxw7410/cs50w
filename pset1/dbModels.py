@@ -40,7 +40,7 @@ def create_table(table_name, engine = userdbEngine):
     Table(table_name, metadata, Column('Id', Integer, primary_key=True),
                                 Column('User_Id', Integer, unique=True),
                                 Column('Rating', Float, nullable=False),
-                                Column('Value', String(250), nullable=False))
+                                Column('Value', String(4000), nullable=False))
     if not engine.dialect.has_table(engine, table_name):
         metadata.create_all()
 
@@ -50,7 +50,7 @@ def fetch_table(table_name, engine = userdbEngine):
     Table(table_name, metadata, Column('Id', Integer, primary_key=True),
                                 Column('User_Id', Integer, unique=True),
                                 Column('Rating', Float, nullable=False),
-                                Column('Value', String(250), nullable=False))
+                                Column('Value', String(4000), nullable=False))
     if not engine.dialect.has_table(engine, table_name):
         return None
     return metadata.tables[table_name]
