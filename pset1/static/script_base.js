@@ -1,6 +1,6 @@
 //Not using local storage because it's overkill for what is intended
 let temporary_search_storage = {};
-
+let book_search_res = "";
 //Init Function
 (function(){
        document.addEventListener("DOMContentLoaded", function(){
@@ -185,7 +185,7 @@ function PaginationAsync()
                                           alert("error")
                             };
                             const data = new FormData();
-                            data.append("book", book);
+                            data.append("book", book_search_res);
                             data.append("page", pageNum);
                             request.send(data);
                             return false;
@@ -194,18 +194,16 @@ function PaginationAsync()
        });
 }
 
-function SearchBarAsync()
+function SearchBarAsync(book)
 {
-       var book = "";
        document.querySelector("#search_bar").onsubmit = function()
        {
               const request = new XMLHttpRequest();
-              book = document.querySelector("#book").value;
+              book_search_res = document.querySelector("#book").value;
               request.open('POST', '/search');
               request.onload = function ()
               {
                      const response = JSON.parse(request.responseText)
-                     console.log(response)
                      if (response.request)
                      {
                             if (!isEmpty(temporary_search_storage))
@@ -222,7 +220,7 @@ function SearchBarAsync()
                             alert("Item in search not found");
               };
               const data = new FormData();
-              data.append("book", book);
+              data.append("book", book_search_res);
               request.send(data);
               return false;
        };
