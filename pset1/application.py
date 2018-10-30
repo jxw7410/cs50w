@@ -3,8 +3,9 @@ Application.py by Jian Wu
 Import order MATTERS
 '''
 import os
+import json
 from helpers import *
-
+from errors import *
 
 @app.route("/login", methods = ["GET", "POST"])
 def login():
@@ -23,6 +24,7 @@ def login():
         return jsonify({"request" : True})
 
     return render_template("login.html")
+
 
 
 @app.route("/register", methods = ["GET", "POST"])
@@ -52,11 +54,14 @@ def register():
     return render_template("register.html")
 
 
+
 @app.route("/")
 @app.route("/index")
 @login_required
 def index():
     return render_template("index.html")
+
+
 
 @app.route("/logout")
 @login_required
@@ -65,10 +70,17 @@ def logout():
     return redirect("/")
 
 
+
 @app.route("/search", methods = ["POST"])
 @login_required
 def search():
-    book = request.form.get("book")
+    try:
+        book = request.form.get("book")
+        if(book.replace(" ", "") is ""):
+            raise EmptyInputError
+    except EmptyInputError:
+        return jsonify({"request" : False})
+
     if not book:
         return jsonify({"request" : False})
 
@@ -79,38 +91,13 @@ def search():
     return jsonify({"request" : True, "data" : data, "page_list" : page_list})
 
 
-
-@app.route("/bookinfo")
-@app.route("/bookinfo/<isbn>")
-@login_required
-def bookinfo(isbn=None):
-    if isbn:
-        get_review = getBookReviewAPI(isbn)
-        if get_review:
-            create_table(isbn) #only creates a table if it doesn't exist
-        query = Books.query.filter_by(isbn = isbn).first().dictFormat()
-        for item in get_review["book"]:
-            query["review_counts"] = item["reviews_count"]
-            query["average_score"] = item["average_rating"]
-        return render_template("bookinfo.html", isbnJson = query)
-
-    else:
-        book_isbn = request.args.get("book")
-        get_review = getBookReviewAPI(book_isbn)
-        if get_review:
-            create_table(book_isbn) #only creates a table if it doesn't exist
-        query = Books.query.filter_by(isbn = book_isbn).first().dictFormat()
-        for item in get_review["books"]:
-            query["review_counts"] = item["reviews_count"]
-            query["average_score"] = item["average_rating"]
-        return render_template("bookinfo.html", json = query)
-
-
 @app.route("/getreview")
 @login_required
 def getreview():
     isbn = request.form.get("isbn")
     return jsonify({"data": fetch_table(isbn)})
+
+
 
 @app.route("/selectpage", methods = ["POST"])
 @login_required
@@ -127,10 +114,74 @@ def selectpage():
     return jsonify({"request" : True, "data" : data, "page_list" : page_list})
 
 
+@app.route("/bookinfo", methods = ["GET"])
+@app.route("/bookinfo/<isbn>", methods = ["GET"])
+@login_required
+def bookinfo(isbn=None):
+    if isbn:
+        get_review = getBookReviewAPI(isbn)
+        if get_review:
+            create_table(isbn) #only creates a table if it doesn't exist
+            query = bookInfoqueryAsync(isbn)
+
+            for item in get_review["book"]:
+                query["review_counts"] = item["reviews_count"]
+                query["average_score"] = item["average_rating"]
+
+            if review:
+                query.update(review)
+
+            return render_template("bookinfo.html", isbnJson = query)
+
+        else:
+            return render_template("bookinfo.html")
+
+    else:
+        book_isbn = request.args.get("book")
+        get_review = getBookReviewAPI(book_isbn)
+        if get_review:
+            create_table(book_isbn) #only creates a table if it doesn't exist
+            query = bookInfoqueryAsync(book_isbn)
+
+            for item in get_review["books"]:
+                query["review_counts"] = item["reviews_count"]
+                query["average_score"] = item["average_rating"]
+
+            return render_template("bookinfo.html", json = query)
+
+        else:
+            return render_template("bookinfo.html")
+
+
+@app.route("/SubmitReview", methods = ["POST"])
+@login_required
+def SubmitReview():
+    try:
+        review = request.form.get("review")
+        stars = float(request.form.get("stars"))
+        isbn = request.form.get("book")
+        if isbn is None:
+            raise isbnNullError
+    except ValueError:
+        return jsonify({"request" : False})
+    except isbnNullError:
+        return jsonify({"request" : False})
+
+    print(review)
+    print(float("{0:.2f}".format(stars)))
+    print(isbn)
+
+    insert_table(fetch_table(isbn), review, float("{0:.2f}".format(stars)), session["user_id"])
+    return jsonify({"request" : True})
+
+
+
 @app.route("/about")
 @login_required
 def about():
     return render_template("about.html")
+
+
 
 @app.errorhandler(404)
 @app.errorhandler(500)
@@ -139,6 +190,8 @@ def page_not_found(e):
         return render_template("error.html", errorcode = 404), 404
     else:
         return render_template("error.html", errorcode = 500), 500
+
+
 
 
 if __name__ == "__main__":

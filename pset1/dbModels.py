@@ -40,7 +40,7 @@ def create_table(table_name, engine = userdbEngine):
     Table(table_name, metadata, Column('Id', Integer, primary_key=True),
                                 Column('User_Id', Integer, unique=True),
                                 Column('Rating', Float, nullable=False),
-                                Column('Value', String(250), nullable=False))
+                                Column('Value', String(4000), nullable=False))
     if not engine.dialect.has_table(engine, table_name):
         metadata.create_all()
 
@@ -50,7 +50,7 @@ def fetch_table(table_name, engine = userdbEngine):
     Table(table_name, metadata, Column('Id', Integer, primary_key=True),
                                 Column('User_Id', Integer, unique=True),
                                 Column('Rating', Float, nullable=False),
-                                Column('Value', String(250), nullable=False))
+                                Column('Value', String(4000), nullable=False))
     if not engine.dialect.has_table(engine, table_name):
         return None
     return metadata.tables[table_name]
@@ -60,4 +60,26 @@ def insert_table(table, string, rating, userid):
     connection = userdbEngine.connect()
     connection.execute(table.insert(values={"User_Id" : userid, "Rating" : rating, "Value" : string}))
     connection.close()
-    print(sessionengine.query(table).all())
+
+
+def get_table_data(table, userid):
+    try:
+        query = sessionengine.query(table).filter_by(User_Id = userid).one()
+    except:
+        return None
+    return {"rating" : query[2], "review" : query[3]}
+
+
+
+
+async def bookqueryAsync(isbn):
+    res = Books.query.filter_by(isbn = isbn).first().dictFormat()
+    await asyncio.sleep(0)
+    return res
+
+
+async def reviewqueryAsync(isbn, userid):
+    res = get_table_data(fetch_table(isbn), userid)
+    await asyncio.sleep(0)
+    return res
+
