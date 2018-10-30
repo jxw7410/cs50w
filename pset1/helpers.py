@@ -57,3 +57,19 @@ def getBookReviewAPI(isbn):
     Key = "98r6Rf0WkYwjZ4Ztr4lNwg"
     res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": Key, "isbns": isbn})
     return res.json()
+
+
+def bookInfoqueryAsync(isbn):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    tasks = loop.run_until_complete(asyncio.gather(bookqueryAsync(isbn),
+                                    reviewqueryAsync(isbn, session["user_id"])))
+    loop.close()
+
+    if tasks[1]:
+        query = tasks[0]
+        query.update(tasks[1])
+    else:
+        query = tasks[0]
+
+    return query

@@ -16,9 +16,9 @@
     </div>
     <!--My Review-->
     <div>
-        <strong>My Review: <span id="review-star">{{stars}}</span> </strong>
+        <strong>My Review: <span id="review-star">{{json["rating"]}}</span> </strong>
         <p id="review-container" rows="4" cols="50">
-            <span id="my_review_text">{%if text%}{{text}}{%endif%}</span>
+            <span id="my_review_text">{{json["review"]}}</span>
         </p>
     </div>
 

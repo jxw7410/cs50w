@@ -3,6 +3,7 @@ Application.py by Jian Wu
 Import order MATTERS
 '''
 import os
+import json
 from helpers import *
 from errors import *
 
@@ -85,44 +86,9 @@ def search():
 
     mem.clear()
     query = paginate_query(CachedQuery().cached(book))
-    print(query)
     data = query_items(query.items)
     page_list = paginate_list(query)
     return jsonify({"request" : True, "data" : data, "page_list" : page_list})
-
-
-
-@app.route("/bookinfo")
-@app.route("/bookinfo/<isbn>")
-@login_required
-def bookinfo(isbn=None):
-    if isbn:
-        get_review = getBookReviewAPI(isbn)
-        if get_review:
-            create_table(isbn) #only creates a table if it doesn't exist
-        else:
-            return render_template("bookinfo.html")
-
-        query = Books.query.filter_by(isbn = isbn).first().dictFormat()
-        for item in get_review["book"]:
-            query["review_counts"] = item["reviews_count"]
-            query["average_score"] = item["average_rating"]
-        return render_template("bookinfo.html", isbnJson = query)
-
-    else:
-        book_isbn = request.args.get("book")
-        get_review = getBookReviewAPI(book_isbn)
-        if get_review:
-            create_table(book_isbn) #only creates a table if it doesn't exist
-        else:
-            return render_template("bookinfo.html")
-
-        query = Books.query.filter_by(isbn = book_isbn).first().dictFormat()
-        for item in get_review["books"]:
-            query["review_counts"] = item["reviews_count"]
-            query["average_score"] = item["average_rating"]
-        return render_template("bookinfo.html", json = query)
-
 
 
 @app.route("/getreview")
@@ -148,6 +114,44 @@ def selectpage():
     return jsonify({"request" : True, "data" : data, "page_list" : page_list})
 
 
+@app.route("/bookinfo", methods = ["GET"])
+@app.route("/bookinfo/<isbn>", methods = ["GET"])
+@login_required
+def bookinfo(isbn=None):
+    if isbn:
+        get_review = getBookReviewAPI(isbn)
+        if get_review:
+            create_table(isbn) #only creates a table if it doesn't exist
+            query = bookInfoqueryAsync(isbn)
+
+            for item in get_review["book"]:
+                query["review_counts"] = item["reviews_count"]
+                query["average_score"] = item["average_rating"]
+
+            if review:
+                query.update(review)
+
+            return render_template("bookinfo.html", isbnJson = query)
+
+        else:
+            return render_template("bookinfo.html")
+
+    else:
+        book_isbn = request.args.get("book")
+        get_review = getBookReviewAPI(book_isbn)
+        if get_review:
+            create_table(book_isbn) #only creates a table if it doesn't exist
+            query = bookInfoqueryAsync(book_isbn)
+
+            for item in get_review["books"]:
+                query["review_counts"] = item["reviews_count"]
+                query["average_score"] = item["average_rating"]
+
+            return render_template("bookinfo.html", json = query)
+
+        else:
+            return render_template("bookinfo.html")
+
 
 @app.route("/SubmitReview", methods = ["POST"])
 @login_required
@@ -166,6 +170,8 @@ def SubmitReview():
     print(review)
     print(float("{0:.2f}".format(stars)))
     print(isbn)
+
+    insert_table(fetch_table(isbn), review, float("{0:.2f}".format(stars)), session["user_id"])
     return jsonify({"request" : True})
 
 

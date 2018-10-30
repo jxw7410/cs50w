@@ -253,7 +253,7 @@ function LoginAsync()
 
 function setReviewButtons()
 {
-       console.log(document.querySelector("#my_review_text").innerHTML);
+
        if(document.querySelector("#my_review_text").innerHTML.split(' ') == "")
        {
               document.querySelector("#edit-button").className += " disabled";
