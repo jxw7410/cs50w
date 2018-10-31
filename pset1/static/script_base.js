@@ -1,8 +1,10 @@
-//Not using local storage because it's overkill for what is intended
-let temporary_search_storage = {};
-let book_search_res = "";
+
 //Init Function
 (function(){
+
+       var temporary_search_storage = {};
+       var book_search_res = "";
+
        document.addEventListener("DOMContentLoaded", function(){
               if (window.location.pathname == "/login")
               {
@@ -12,8 +14,9 @@ let book_search_res = "";
               if (window.location.pathname == "/")
               {
                      setNavActive("Search");
-                     SearchBarAsync();
-                     PaginationAsync();
+                     SearchBarAsync(book_search_res, temporary_search_storage);
+                     PaginationAsync(book_search_res, temporary_search_storage);
+                     help();
 
               }
               if (window.location.pathname == "/register")
@@ -27,14 +30,13 @@ let book_search_res = "";
                      setNavActive("About");
               }
 
+
               if(/bookinfo/.test(window.location.href))
               {
                      setReviewButtons();
                      Review('#review-button');
                      Review('#edit-button');
                      CancelReview();
-                     SubmitReviewAsync('/SubmitReview');
-                     SubmitReviewAsync('/EditReview');
                      DeleteReviewAsync();
                      WordCount();
               }
@@ -43,14 +45,28 @@ let book_search_res = "";
 })();
 
 
+function help()
+{
+       document.querySelector('#help-btn').onclick = function()
+       {
+              alert("Please put in part of (or the entire) an isbn, author, or book name");
+       }
+}
+
 function Review(htmlID)
 {
        document.querySelector(htmlID).onclick = function()
        {
+              console.log(htmlID)
               document.getElementById("submit_review_text").style.display = "block";
               document.getElementById("review-button").style.display = "None";
               document.getElementById("edit-button").style.display = "None";
               document.getElementById("delete-button").style.display = "None";
+
+              if(htmlID == '#review-button')
+                     SubmitReviewAsync(true);
+              else
+                     SubmitReviewAsync(false);
        }
 }
 
@@ -70,10 +86,16 @@ function DefaultState()
        document.getElementById("delete-button").style.display = "inline";
 }
 
-function SubmitReviewAsync(url)
+function SubmitReviewAsync(book_info_state)
 {
        document.querySelector('#reviewform').onsubmit = function()
        {
+              var url;
+              if (book_info_state)
+                     url = '/SubmitReview'
+              else
+                     url = '/EditReview'
+
               const review = document.querySelector('#review').value;
               const stars = parseFloat(document.querySelector('#stars').value);
               var isbn = ExtractUrl();
@@ -94,6 +116,7 @@ function SubmitReviewAsync(url)
                      request.onload = function()
                      {
                             const response = JSON.parse(request.responseText);
+                            console.log(response);
                             if (response.request)
                             {
                                    DefaultState();
@@ -113,6 +136,8 @@ function SubmitReviewAsync(url)
               }
        }
 }
+
+
 
 
 function DeleteReviewAsync()
@@ -191,7 +216,7 @@ function RegisterAsync()
        };
 }
 
-function PaginationAsync()
+function PaginationAsync(book_search_res, temporary_search_storage)
 {
        document.querySelector('#search_table_pagination').addEventListener('click', function(event)
        {
@@ -233,7 +258,7 @@ function PaginationAsync()
        });
 }
 
-function SearchBarAsync(book)
+function SearchBarAsync(book_search_res, temporary_search_storage)
 {
        document.querySelector("#search_bar").onsubmit = function()
        {

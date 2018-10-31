@@ -84,6 +84,7 @@ def insert_table(table, string, rating, userid):
         connection.execute(table.insert(values={"User_Id" : userid, "Rating" : rating, "Value" : string}))
         transaction.commit()
     except:
+        print("error detected")
         transaction.rollback()
         connection.close()
         return False
@@ -97,6 +98,7 @@ def delete_table(table, userid):
         connection.execute(table.delete().where(table.c.User_Id == userid))
         transaction.commit()
     except:
+        print("error detected")
         transaction.rollback()
         connection.close()
         return False
@@ -110,7 +112,6 @@ def update_table(table, review, rating, userid):
         connection.execute(table.update(values = {"Rating" : rating, "Value" : review}).where(table.c.User_Id == userid))
         transaction.commit()
     except:
-        print("Error detected, but why?")
         transaction.rollback()
         connection.close()
         return False
