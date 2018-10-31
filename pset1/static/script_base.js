@@ -30,9 +30,12 @@ let book_search_res = "";
               if(/bookinfo/.test(window.location.href))
               {
                      setReviewButtons();
-                     CreateReview();
+                     Review('#review-button');
+                     Review('#edit-button');
                      CancelReview();
-                     SubmitReviewAsync();
+                     SubmitReviewAsync('/SubmitReview');
+                     SubmitReviewAsync('/EditReview');
+                     DeleteReviewAsync();
                      WordCount();
               }
 
@@ -40,9 +43,9 @@ let book_search_res = "";
 })();
 
 
-function CreateReview()
+function Review(htmlID)
 {
-       document.querySelector('#review-button').onclick = function()
+       document.querySelector(htmlID).onclick = function()
        {
               document.getElementById("submit_review_text").style.display = "block";
               document.getElementById("review-button").style.display = "None";
@@ -67,13 +70,13 @@ function DefaultState()
        document.getElementById("delete-button").style.display = "inline";
 }
 
-function SubmitReviewAsync()
+function SubmitReviewAsync(url)
 {
        document.querySelector('#reviewform').onsubmit = function()
        {
               const review = document.querySelector('#review').value;
               const stars = parseFloat(document.querySelector('#stars').value);
-              var params = ExtractUrl();
+              var isbn = ExtractUrl();
               if (!stars || (stars > 5 || stars < 0))
               {
                      alert("Please submit a valid stars rating");
@@ -87,7 +90,7 @@ function SubmitReviewAsync()
               else
               {
                      const request = new XMLHttpRequest();
-                     request.open('POST','/SubmitReview');
+                     request.open('POST', url);
                      request.onload = function()
                      {
                             const response = JSON.parse(request.responseText);
@@ -98,18 +101,54 @@ function SubmitReviewAsync()
                             }
                             else
                             {
-                                   alert("OOF")
+                                   alert("Oh? Something went wrong. Please submit an error report.");
                             }
                      }
                      const data = new FormData();
                      data.append("review", review);
                      data.append("stars", stars);
-                     data.append("book", params["book"]);
+                     data.append("book", isbn["book"]);
                      request.send(data);
                      return false;
               }
        }
 }
+
+
+function DeleteReviewAsync()
+{
+       document.querySelector('#delete-button').onclick = function()
+       {
+              if(confirm("Do you want to delete your review?"))
+              {
+                     var isbn = ExtractUrl();
+                     const request = new XMLHttpRequest();
+                     request.open('POST', '/DeleteReview');
+                     request.onload = function()
+                     {
+                            const response = JSON.parse(request.responseText)
+                            if(response.request)
+                            {
+                                   alert("Your review has been deleted");
+                                   document.getElementById('review-star').innerHTML = "";
+                                   document.getElementById("my_review_text").innerHTML = "";
+                                   setReviewButtons();
+                            }
+                            else
+                            {
+                                   alert("Oh? Something went wrong. Please submit an error report.");
+                            }
+                     }
+                     const data= new FormData();
+                     data.append("book", isbn["book"]);
+                     request.send(data);
+                     return false;
+              }
+
+       }
+}
+
+
 
 function DisplayReview(review, stars)
 {
@@ -254,6 +293,7 @@ function setReviewButtons()
 
        if(document.querySelector("#my_review_text").innerHTML.split(' ') == "")
        {
+              document.querySelector('#review-button').classList.remove("disabled");
               document.querySelector("#edit-button").className += " disabled";
               document.querySelector("#delete-button").className += " disabled";
        }
@@ -346,7 +386,7 @@ function WordCount()
 {
        document.querySelector('#review').onkeyup = function()
        {
-              var wordLimit = 4000;
+              const wordLimit = 4000;
               var wordCount = document.querySelector('#review').value;
               if(parseInt(wordLimit))
               {

@@ -122,7 +122,7 @@ def bookinfo(isbn=None):
         get_review = getBookReviewAPI(isbn)
         if get_review:
             create_table(isbn) #only creates a table if it doesn't exist
-            query = bookInfoqueryAsync(isbn)
+            query = bookInfoQueryAsync(isbn)
 
             for item in get_review["book"]:
                 query["review_counts"] = item["reviews_count"]
@@ -141,7 +141,7 @@ def bookinfo(isbn=None):
         get_review = getBookReviewAPI(book_isbn)
         if get_review:
             create_table(book_isbn) #only creates a table if it doesn't exist
-            query = bookInfoqueryAsync(book_isbn)
+            query = bookInfoQueryAsync(book_isbn)
 
             for item in get_review["books"]:
                 query["review_counts"] = item["reviews_count"]
@@ -167,12 +167,45 @@ def SubmitReview():
     except isbnNullError:
         return jsonify({"request" : False})
 
-    print(review)
-    print(float("{0:.2f}".format(stars)))
-    print(isbn)
+    if insert_table(fetch_table(isbn), review, float("{0:.2f}".format(stars)), session["user_id"]):
+        return jsonify({"request" : True})
 
-    insert_table(fetch_table(isbn), review, float("{0:.2f}".format(stars)), session["user_id"])
-    return jsonify({"request" : True})
+    return jsonify({"request" : False})
+
+@app.route("/EditReview", methods = ["POST"])
+@login_required
+def EditReview():
+    try:
+        review = request.form.get("review")
+        stars = float(request.form.get("stars"))
+        isbn = request.form.get("book")
+        if isbn is None:
+            raise isbnNullError
+    except ValueError:
+        return jsonify({"request" : False})
+    except isbnNullError:
+        return jsonify({"request" : False})
+
+    if update_table(fetch_table(isbn), review, float("{0:.2f}".format(stars)), session["user_id"]):
+        return jsonify({"request" : True})
+
+    return jsonify({"request" : False})
+
+
+@app.route("/DeleteReview", methods = ["POST"])
+@login_required
+def DeleteReview():
+    try:
+        isbn = request.form.get("book")
+        if isbn is None:
+            raise isbnNullError
+    except isbnNullError:
+        return jsonify({"request" : False})
+
+    if delete_table(fetch_table(isbn), session["user_id"]):
+        return jsonify({"request" : True})
+
+    return jsonify({"request" : False})
 
 
 
@@ -181,8 +214,6 @@ def SubmitReview():
 def about():
     return render_template("about.html")
 
-
-
 @app.errorhandler(404)
 @app.errorhandler(500)
 def page_not_found(e):
@@ -190,8 +221,6 @@ def page_not_found(e):
         return render_template("error.html", errorcode = 404), 404
     else:
         return render_template("error.html", errorcode = 500), 500
-
-
 
 
 if __name__ == "__main__":

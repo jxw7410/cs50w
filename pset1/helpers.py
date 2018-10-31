@@ -59,7 +59,7 @@ def getBookReviewAPI(isbn):
     return res.json()
 
 
-def bookInfoqueryAsync(isbn):
+def bookInfoQueryAsync(isbn):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     tasks = loop.run_until_complete(asyncio.gather(bookqueryAsync(isbn),

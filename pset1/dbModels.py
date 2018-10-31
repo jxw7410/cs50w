@@ -55,12 +55,6 @@ def fetch_table(table_name, engine = userdbEngine):
         return None
     return metadata.tables[table_name]
 
-#To post message into table
-def insert_table(table, string, rating, userid):
-    connection = userdbEngine.connect()
-    connection.execute(table.insert(values={"User_Id" : userid, "Rating" : rating, "Value" : string}))
-    connection.close()
-
 
 def get_table_data(table, userid):
     try:
@@ -68,8 +62,6 @@ def get_table_data(table, userid):
     except:
         return None
     return {"rating" : query[2], "review" : query[3]}
-
-
 
 
 async def bookqueryAsync(isbn):
@@ -82,4 +74,50 @@ async def reviewqueryAsync(isbn, userid):
     res = get_table_data(fetch_table(isbn), userid)
     await asyncio.sleep(0)
     return res
+
+#command functions
+#To post message into table
+def insert_table(table, string, rating, userid):
+    connection = userdbEngine.connect()
+    transaction = connection.begin()
+    try:
+        connection.execute(table.insert(values={"User_Id" : userid, "Rating" : rating, "Value" : string}))
+        transaction.commit()
+    except:
+        transaction.rollback()
+        connection.close()
+        return False
+    connection.close()
+    return True
+
+def delete_table(table, userid):
+    connection = userdbEngine.connect()
+    transaction = connection.begin()
+    try:
+        connection.execute(table.delete().where(table.c.User_Id == userid))
+        transaction.commit()
+    except:
+        transaction.rollback()
+        connection.close()
+        return False
+    connection.close()
+    return True
+
+def update_table(table, review, rating, userid):
+    connection = userdbEngine.connect()
+    transaction = connection.begin()
+    try:
+        connection.execute(table.update(values = {"Rating" : rating, "Value" : review}).where(table.c.User_Id == userid))
+        transaction.commit()
+    except:
+        print("Error detected, but why?")
+        transaction.rollback()
+        connection.close()
+        return False
+    connection.close()
+    return True
+
+
+
+
 
