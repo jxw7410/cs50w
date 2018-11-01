@@ -15,10 +15,10 @@
         </ul>
     </div>
     <!--My Review-->
-    <div>
-        <span></span><strong>My Review: </strong> <span id="review-star">{{json["rating"]}}</span></span>
+    <div class="user-review-ctn">
+        <span class="review-span"><strong>My Review: </strong> <span id="review-star"> {%if json["rating"]%}{{json["rating"]}} / 5.0 {%else%} 0.00 / 5.0 {%endif%}</span></span>
         <p id="review-container" rows="4" cols="50">
-            <span id="my_review_text">{{json["review"]}}</span>
+            <span id ="my_review_text" class="review-span">{{json["review"]}}</span>
         </p>
     </div>
 
@@ -37,10 +37,12 @@
     </div>
 
     <!--user review button-->
-    <div>
+    <div id='bookinfo-btn-sets'>
                 <button class="btn btn-primary" type="button" id="review-button">Create Review</button>
                 <button class="btn btn-primary" type="button" id="edit-button">Edit Review</button>
                 <button class="btn btn-primary" type="button" id="delete-button">Delete Review</button>
     </div>
 
+    <div id="other-user-reviews-ctn">
+    </div>
 {% endblock %}

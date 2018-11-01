@@ -2,11 +2,14 @@ from init_config import *
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, nullable=False)
+    username = db.Column(db.String, nullable=False, unique=True)
     password = db.Column(db.String, nullable=False)
 
     def dictFormat(self):
         return {"username" : self.username}
+
+    def GetUserName(self):
+        return self.username
 
     def Add(self):
         db.session.add(self)
@@ -30,7 +33,7 @@ db.create_all();
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Float
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
-userdbEngine = create_engine('sqlite:///database/bookreview.db')
+userdbEngine = create_engine('sqlite:///database/bookreviews.db')
 mSession = sessionmaker(bind=userdbEngine)
 sessionengine = mSession()
 
@@ -38,7 +41,7 @@ sessionengine = mSession()
 def create_table(table_name, engine = userdbEngine):
     metadata = MetaData(engine)
     Table(table_name, metadata, Column('Id', Integer, primary_key=True),
-                                Column('User_Id', Integer, unique=True),
+                                Column('User', String(32), nullable=False, unique=True),
                                 Column('Rating', Float, nullable=False),
                                 Column('Value', String(4000), nullable=False))
     if not engine.dialect.has_table(engine, table_name):
@@ -48,7 +51,7 @@ def create_table(table_name, engine = userdbEngine):
 def fetch_table(table_name, engine = userdbEngine):
     metadata = MetaData(engine)
     Table(table_name, metadata, Column('Id', Integer, primary_key=True),
-                                Column('User_Id', Integer, unique=True),
+                                Column('User', String(32), nullable=False, unique=True),
                                 Column('Rating', Float, nullable=False),
                                 Column('Value', String(4000), nullable=False))
     if not engine.dialect.has_table(engine, table_name):
@@ -56,13 +59,20 @@ def fetch_table(table_name, engine = userdbEngine):
     return metadata.tables[table_name]
 
 
-def get_table_data(table, userid):
+def get_table_data(table, user):
     try:
-        query = sessionengine.query(table).filter_by(User_Id = userid).one()
+        query = sessionengine.query(table).filter_by(User = user).one()
     except:
         return None
     return {"rating" : query[2], "review" : query[3]}
 
+
+def get_table_data_other_users(table, user):
+    try:
+        query = sessionengine.query(table).filter(table.c.User != user).limit(5).all()
+    except:
+        return None
+    return query
 
 async def bookqueryAsync(isbn):
     res = Books.query.filter_by(isbn = isbn).first().dictFormat()
@@ -70,18 +80,18 @@ async def bookqueryAsync(isbn):
     return res
 
 
-async def reviewqueryAsync(isbn, userid):
-    res = get_table_data(fetch_table(isbn), userid)
+async def reviewqueryAsync(isbn, user):
+    res = get_table_data(fetch_table(isbn), user)
     await asyncio.sleep(0)
     return res
 
 #command functions
 #To post message into table
-def insert_table(table, string, rating, userid):
+def insert_table(table, string, rating, user):
     connection = userdbEngine.connect()
     transaction = connection.begin()
     try:
-        connection.execute(table.insert(values={"User_Id" : userid, "Rating" : rating, "Value" : string}))
+        connection.execute(table.insert(values={"User" : user, "Rating" : rating, "Value" : string}))
         transaction.commit()
     except:
         print("error detected")
@@ -91,11 +101,11 @@ def insert_table(table, string, rating, userid):
     connection.close()
     return True
 
-def delete_table(table, userid):
+def delete_table(table, user):
     connection = userdbEngine.connect()
     transaction = connection.begin()
     try:
-        connection.execute(table.delete().where(table.c.User_Id == userid))
+        connection.execute(table.delete().where(table.c.User == user))
         transaction.commit()
     except:
         print("error detected")
@@ -105,11 +115,11 @@ def delete_table(table, userid):
     connection.close()
     return True
 
-def update_table(table, review, rating, userid):
+def update_table(table, review, rating, user):
     connection = userdbEngine.connect()
     transaction = connection.begin()
     try:
-        connection.execute(table.update(values = {"Rating" : rating, "Value" : review}).where(table.c.User_Id == userid))
+        connection.execute(table.update(values = {"Rating" : rating, "Value" : review}).where(table.c.User == user))
         transaction.commit()
     except:
         transaction.rollback()

@@ -15,10 +15,10 @@ def login():
         password = request.form.get("password")
         dbUser = User.query.filter_by(username=username).first()
         if dbUser is None:
-            return jsonify({"request": False})
+            return jsonify()
 
         if not check_password_hash(dbUser.password, password):
-            return jsonify({"request": False})
+            return jsonify()
 
         session["user_id"] = dbUser.id
         return jsonify({"request" : True})
@@ -32,11 +32,10 @@ def register():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        password_again = request.form.get("password_again")
-
+        password_again = request.form.get("passwordAgain")
 
         if password != password_again:
-            return jsonify({"request" : False, "errorcode" : 101})
+            return jsonify({"errorcode" : 101})
 
         dbUser = User.query.filter_by(username=username).first()
         if dbUser is None:
@@ -44,12 +43,12 @@ def register():
             dbUser = User.query.filter_by(username = username).first()
 
             if dbUser is None:
-                return jsonify({"request" : False, "errorcode" : -1})
+                return jsonify({"errorcode" : -1})
 
             session["user_id"] = dbUser.id
             return jsonify({"request" : True})
 
-        return jsonify({"request" : False, "errorcode" : 102})
+        return jsonify({"errorcode" : 102})
 
     return render_template("register.html")
 
@@ -79,21 +78,20 @@ def search():
         if(book.replace(" ", "") is ""):
             raise EmptyInputError
     except EmptyInputError:
-        return jsonify({"request" : False})
+        return jsonify()
 
     if not book:
-        return jsonify({"request" : False})
+        return jsonify()
 
-    mem.clear()
-    query = paginate_query(CachedQuery().cached(book))
+    query = paginate_query(query_book(book))
     data = query_items(query.items)
     page_list = paginate_list(query)
-    return jsonify({"request" : True, "data" : data, "page_list" : page_list})
+    return jsonify({"data" : data, "page_list" : page_list})
 
 
-@app.route("/getreview")
+@app.route("/getrawreview")
 @login_required
-def getreview():
+def getrawreview():
     isbn = request.form.get("isbn")
     return jsonify({"data": fetch_table(isbn)})
 
@@ -106,12 +104,12 @@ def selectpage():
         book = request.form.get("book")
         page = int(request.form.get("page"))
     except ValueError:
-        return jsonify({"request" : False})
+        return jsonify()
 
-    query = paginate_query(CachedQuery().cached(book), page)
+    query = paginate_query(query_book(book), page)
     data = query_items(query.items)
     page_list = paginate_list(query)
-    return jsonify({"request" : True, "data" : data, "page_list" : page_list})
+    return jsonify({"data" : data, "page_list" : page_list})
 
 
 @app.route("/bookinfo", methods = ["GET"])
@@ -163,14 +161,14 @@ def SubmitReview():
         if isbn is None:
             raise isbnNullError
     except ValueError:
-        return jsonify({"request" : False})
+        return jsonify()
     except isbnNullError:
-        return jsonify({"request" : False})
+        return jsonify()
 
-    if insert_table(fetch_table(isbn), review, float("{0:.2f}".format(stars)), session["user_id"]):
+    if insert_table(fetch_table(isbn), review, float("{0:.2f}".format(stars)), getusername(session["user_id"])):
         return jsonify({"request" : True})
 
-    return jsonify({"request" : False})
+    return jsonify()
 
 
 
@@ -184,14 +182,14 @@ def EditReview():
         if isbn is None:
             raise isbnNullError
     except ValueError:
-        return jsonify({"request" : False})
+        return jsonify()
     except isbnNullError:
-        return jsonify({"request" : False})
+        return jsonify()
 
-    if update_table(fetch_table(isbn), review, float("{0:.2f}".format(stars)), session["user_id"]):
+    if update_table(fetch_table(isbn), review, float("{0:.2f}".format(stars)), getusername(session["user_id"])):
         return jsonify({"request" : True})
 
-    return jsonify({"request" : False})
+    return jsonify()
 
 
 @app.route("/DeleteReview", methods = ["POST"])
@@ -202,14 +200,31 @@ def DeleteReview():
         if isbn is None:
             raise isbnNullError
     except isbnNullError:
-        return jsonify({"request" : False})
+        return jsonify()
 
-    if delete_table(fetch_table(isbn), session["user_id"]):
+    if delete_table(fetch_table(isbn), getusername(session["user_id"])):
         return jsonify({"request" : True})
 
+    return jsonify()
+
+
+@app.route("/GetFewReviews", methods = ["POST"])
+@login_required
+def GetFewReviews():
+    try:
+        isbn = request.form.get("book")
+        if isbn is None:
+            raise isbnNullError
+    except isbnNullError:
+        return jsonify()
+
+    return jsonify({"data" : get_table_data_other_users(fetch_table(isbn), getusername(session["user_id"]))})
+
+
+@app.route("/Error", methods = ["POST"])
+@login_required
+def Error():
     return jsonify({"request" : False})
-
-
 
 @app.route("/about")
 @login_required

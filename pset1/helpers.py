@@ -34,21 +34,14 @@ def paginate_list(pagination):
 
 
 
-#Doesn't work as intended because the sql code from _query_book was  cached, not the result of the query.
-from joblib import Memory
-cachedir = mkdtemp()
-mem = Memory(cachedir=cachedir)
-
 def paginate_query(query, page = 1, items_per_page = 20):
     return query.paginate(page, items_per_page)
 
-def _query_book(book):
+def query_book(book):
     return Books.query.filter(Books.isbn.like("%" + book + "%"))
 
-class CachedQuery(object):
-    def cached(self, book):
-        query_book = mem.cache(_query_book)
-        return query_book(book)
+def getusername(sessionid):
+    return User.query.filter_by(id = sessionid).first().GetUserName()
 
 
 import requests
@@ -63,7 +56,7 @@ def bookInfoQueryAsync(isbn):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     tasks = loop.run_until_complete(asyncio.gather(bookqueryAsync(isbn),
-                                    reviewqueryAsync(isbn, session["user_id"])))
+                                    reviewqueryAsync(isbn, getusername(session["user_id"]))))
     loop.close()
 
     if tasks[1]:
