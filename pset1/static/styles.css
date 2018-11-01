@@ -44,10 +44,28 @@ table, th, td
     border-width:1px;
     border-radius: 5px;
     color: #D3D3D3;
+    padding: 5px;
+    background-color: #ffffff;
 }
-#my_review_text
+.review-span
 {
     color: #000000;
     padding: 5px;
 }
 
+.user-review-ctn
+{
+    border-style:solid;
+    border-width:1px;
+    border-radius: 5px;
+    padding: 5px;
+    color: #d0dbde;
+    background-color: #d0dbde;
+    box-shadow: 3px 3px 4px #808080;
+}
+
+
+#bookinfo-btn-sets
+{
+    padding: 5px;
+}

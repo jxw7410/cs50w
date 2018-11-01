@@ -1,25 +1,40 @@
-//Not using local storage because it's overkill for what is intended
-let temporary_search_storage = {};
-let book_search_res = "";
-//Init Function
+//Main function
 (function(){
-       document.addEventListener("DOMContentLoaded", function(){
+       document.addEventListener("DOMContentLoaded", function()
+       {
               if (window.location.pathname == "/login")
               {
                      setNavActive("Login");
-                     LoginAsync();
+                     LoginAjax();
               }
-              if (window.location.pathname == "/")
-              {
-                     setNavActive("Search");
-                     SearchBarAsync();
-                     PaginationAsync();
 
-              }
               if (window.location.pathname == "/register")
               {
                      setNavActive("Register");
-                     RegisterAsync();
+                     RegisterAjax();
+              }
+
+              if (window.location.pathname == "/")
+              {
+
+                     var temporary_search_storage = {};
+                     var book_search_res = "";
+                     setNavActive("Search");
+                     SearchBarAjax(book_search_res, temporary_search_storage);
+                     PaginationAjax(book_search_res, temporary_search_storage);
+                     Help();
+
+              }
+
+              if(/bookinfo/.test(window.location.href))
+              {
+                     setReviewButtons();
+                     GetOtherReviewsAjax();
+                     mReview('#review-button');
+                     mReview('#edit-button');
+                     DeleteReviewAjax();
+                     CancelReview();
+                     WordCount();
               }
 
               if (window.location.pathname == "/about")
@@ -27,206 +42,12 @@ let book_search_res = "";
                      setNavActive("About");
               }
 
-              if(/bookinfo/.test(window.location.href))
-              {
-                     setReviewButtons();
-                     CreateReview();
-                     CancelReview();
-                     SubmitReviewAsync();
-                     WordCount();
-              }
 
        });
 })();
 
 
-function CreateReview()
-{
-       document.querySelector('#review-button').onclick = function()
-       {
-              document.getElementById("submit_review_text").style.display = "block";
-              document.getElementById("review-button").style.display = "None";
-              document.getElementById("edit-button").style.display = "None";
-              document.getElementById("delete-button").style.display = "None";
-       }
-}
-
-function CancelReview()
-{
-       document.querySelector('#review-cancel-btn').onclick = function()
-       {
-              DefaultState();
-       }
-}
-
-function DefaultState()
-{
-       document.getElementById("submit_review_text").style.display = "None";
-       document.getElementById("review-button").style.display = "inline";
-       document.getElementById("edit-button").style.display = "inline";
-       document.getElementById("delete-button").style.display = "inline";
-}
-
-function SubmitReviewAsync()
-{
-       document.querySelector('#reviewform').onsubmit = function()
-       {
-              const review = document.querySelector('#review').value;
-              const stars = parseFloat(document.querySelector('#stars').value);
-              var params = ExtractUrl();
-              if (!stars || (stars > 5 || stars < 0))
-              {
-                     alert("Please submit a valid stars rating");
-                     return false;
-              }
-              else if(review.split(" ") == "")
-              {
-                     alert("Please fill in the review text field");
-                     return false;
-              }
-              else
-              {
-                     const request = new XMLHttpRequest();
-                     request.open('POST','/SubmitReview');
-                     request.onload = function()
-                     {
-                            const response = JSON.parse(request.responseText);
-                            if (response.request)
-                            {
-                                   DefaultState();
-                                   DisplayReview(review, stars);
-                            }
-                            else
-                            {
-                                   alert("OOF")
-                            }
-                     }
-                     const data = new FormData();
-                     data.append("review", review);
-                     data.append("stars", stars);
-                     data.append("book", params["book"]);
-                     request.send(data);
-                     return false;
-              }
-       }
-}
-
-function DisplayReview(review, stars)
-{
-       document.querySelector("#review-star").innerHTML = stars + " Stars";
-       document.querySelector('#my_review_text').innerHTML = review;
-       setReviewButtons();
-}
-
-
-function RegisterAsync()
-{
-       document.querySelector("#register").onsubmit = function()
-       {
-              const request = new XMLHttpRequest();
-              const username = document.querySelector("#username").value;
-              const password = document.querySelector("#password").value;
-              const passwordAgain = document.querySelector("#password_again").value;
-              request.open('POST', '/register');
-              request.onload = function ()
-              {
-                     const response = JSON.parse(request.responseText)
-                     if (response.request)
-                            window.location.href = "/"
-                     else
-                     {
-                            if (data.errorcode == 101)
-                                   alert("Passwords Do not match");
-                            else if (data.errorcode == 102)
-                                   alert("Username already exists");
-                            else
-                                   alert("Unknown Error");
-                     }
-              };
-              const data = new FormData();
-              data.append("username", username);
-              data.append("password", password);
-              data.append("passwordAgain", passwordAgain)
-              request.send(data);
-              return false;
-       };
-}
-
-function PaginationAsync()
-{
-       document.querySelector('#search_table_pagination').addEventListener('click', function(event)
-       {
-              if(event.target.className == "paginate")
-              {
-                     var pageNum = event.target.getAttribute("tag");
-                     if (pageNum in temporary_search_storage)
-                     {
-                            PrintSearchTable(temporary_search_storage[pageNum].data);
-                            PrintPageList(temporary_search_storage[pageNum].page_list);
-                     }
-                     else
-                     {
-                            const request = new XMLHttpRequest();
-                            request.open('POST', '/selectpage');
-                            request.onload = function()
-                            {
-                                   const response = JSON.parse(request.responseText)
-                                   if(response.request)
-                                   {
-                                          PrintSearchTable(response.data);
-                                          PrintPageList(response.page_list)
-                                          temporary_search_storage[response.page_list.current_page] =
-                                          {
-                                                 "data" : response.data,
-                                                 "page_list" : response.page_list
-                                          };
-                                   }
-                                   else
-                                          alert("error")
-                            };
-                            const data = new FormData();
-                            data.append("book", book_search_res);
-                            data.append("page", pageNum);
-                            request.send(data);
-                            return false;
-                     }
-              }
-       });
-}
-
-function SearchBarAsync(book)
-{
-       document.querySelector("#search_bar").onsubmit = function()
-       {
-              const request = new XMLHttpRequest();
-              book_search_res = document.querySelector("#book").value;
-              request.open('POST', '/search');
-              request.onload = function ()
-              {
-                     const response = JSON.parse(request.responseText)
-                     if (response.request)
-                     {
-                            if (!isEmpty(temporary_search_storage))
-                                   temporary_search_storage = {}
-                            PrintSearchTable(response.data);
-                            PrintPageList(response.page_list)
-                            temporary_search_storage[response.page_list.current_page] =
-                            {
-                                   "data" : response.data,
-                                   "page_list" : response.page_list
-                            }
-                     }
-                     else
-                            alert("Item in search not found");
-              };
-              const data = new FormData();
-              data.append("book", book_search_res);
-              request.send(data);
-              return false;
-       };
-}
-
-function LoginAsync()
+function LoginAjax()
 {
        document.querySelector("#login").onsubmit = function(){
               const request = new XMLHttpRequest();
@@ -249,24 +70,119 @@ function LoginAsync()
               };
 }
 
-function setReviewButtons()
+
+function RegisterAjax()
 {
-
-       if(document.querySelector("#my_review_text").innerHTML.split(' ') == "")
+       document.querySelector("#register").onsubmit = function()
        {
-              document.querySelector("#edit-button").className += " disabled";
-              document.querySelector("#delete-button").className += " disabled";
-       }
-       else
-       {
-              document.querySelector("#review-button").className += " disabled";
-              document.querySelector("#edit-button").classList.remove("disabled");
-              document.querySelector("#delete-button").classList.remove("disabled");
-       }
-
+              const request = new XMLHttpRequest();
+              const username = document.querySelector("#username").value;
+              const password = document.querySelector("#password").value;
+              const passwordAgain = document.querySelector("#password_again").value;
+              request.open('POST', '/register');
+              request.onload = function ()
+              {
+                     const response = JSON.parse(request.responseText)
+                     console.log(response);
+                     if (response.request)
+                            window.location.href = "/"
+                     else
+                     {
+                            if (response.errorcode == 101)
+                                   alert("Passwords Do not match");
+                            else if (response.errorcode == 102)
+                                   alert("Username already exists");
+                            else
+                                   alert("Unknown Error");
+                     }
+              };
+              const data = new FormData();
+              data.append("username", username);
+              data.append("password", password);
+              data.append("passwordAgain", passwordAgain)
+              request.send(data);
+              return false;
+       };
 }
 
-//display search table, no pagination
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function SearchBarAjax(book_search_res, temporary_search_storage)
+{
+       document.querySelector("#search_bar").onsubmit = function()
+       {
+              const request = new XMLHttpRequest();
+              book_search_res = document.querySelector("#book").value;
+              request.open('POST', '/search');
+              request.onload = function ()
+              {
+                     const response = JSON.parse(request.responseText)
+                     if (response.data)
+                     {
+                            if (!isEmpty(temporary_search_storage))
+                                   temporary_search_storage = {}
+                            PrintSearchTable(response.data);
+                            PrintPageList(response.page_list)
+                            temporary_search_storage[response.page_list.current_page] =
+                            {
+                                   "data" : response.data,
+                                   "page_list" : response.page_list
+                            }
+                     }
+                     else
+                            alert("Item in search not found");
+              };
+              const data = new FormData();
+              data.append("book", book_search_res);
+              request.send(data);
+              return false;
+       };
+}
+
+
+
+function PaginationAjax(book_search_res, temporary_search_storage)
+{
+       document.querySelector('#search_table_pagination').addEventListener('click', function(event)
+       {
+              if(event.target.className == "paginate")
+              {
+                     var pageNum = event.target.getAttribute("tag");
+                     if (pageNum in temporary_search_storage)
+                     {
+                            PrintSearchTable(temporary_search_storage[pageNum].data);
+                            PrintPageList(temporary_search_storage[pageNum].page_list);
+                     }
+                     else
+                     {
+                            const request = new XMLHttpRequest();
+                            request.open('POST', '/selectpage');
+                            request.onload = function()
+                            {
+                                   const response = JSON.parse(request.responseText)
+                                   if(response.data)
+                                   {
+                                          PrintSearchTable(response.data);
+                                          PrintPageList(response.page_list)
+                                          temporary_search_storage[response.page_list.current_page] =
+                                          {
+                                                 "data" : response.data,
+                                                 "page_list" : response.page_list
+                                          };
+                                   }
+                                   else
+                                          alert("error")
+                            };
+                            const data = new FormData();
+                            data.append("book", book_search_res);
+                            data.append("page", pageNum);
+                            request.send(data);
+                            return false;
+                     }
+              }
+       });
+}
+
 function PrintSearchTable(data)
 {
        table = document.getElementById('search_table_result');
@@ -306,6 +222,7 @@ function PrintPageList(data)
 }
 
 
+
 function isEmpty(obj)
 {
        for(var key in obj)
@@ -315,6 +232,198 @@ function isEmpty(obj)
 }
 
 
+function Help()
+{
+       document.querySelector('#help-btn').onclick = function()
+       {
+              alert("Please put in part of (or the entire) an isbn, author, or book name");
+       }
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+function mReview(htmlID)
+{
+       document.querySelector(htmlID).onclick = function()
+       {
+              document.getElementById("submit_review_text").style.display = "block";
+              document.getElementById("review-button").style.display = "None";
+              document.getElementById("edit-button").style.display = "None";
+              document.getElementById("delete-button").style.display = "None";
+
+              if (htmlID == '#review-button')
+                     SubmitReviewAjax(bookInfoState.REVIEW);
+              else if (htmlID == '#edit-button')
+                     SubmitReviewAjax(bookInfoState.EDIT);
+              else
+                     SubmitReviewAjax(bookInfoState.ERROR);
+       }
+}
+
+function SubmitReviewAjax(book_info_state)
+{
+       document.querySelector('#reviewform').onsubmit = function()
+       {
+              var url;
+              switch(book_info_state)
+              {
+                     case bookInfoState.REVIEW:
+                            url = '/SubmitReview';
+                            break;
+                     case bookInfoState.EDIT:
+                            url = '/EditReview';
+                            break;
+                     default:
+                            url = '/Error';
+                            break;
+              }
+
+              const review = document.querySelector('#review').value;
+              const stars = parseFloat(document.querySelector('#stars').value);
+              var isbn = ExtractUrl();
+              if (!stars || (stars > 5 || stars < 0))
+              {
+                     alert("Please submit a valid stars rating");
+                     return false;
+              }
+              else if(review.split(" ") == "")
+              {
+                     alert("Please fill in the review text field");
+                     return false;
+              }
+              else
+              {
+                     const request = new XMLHttpRequest();
+                     request.open('POST', url);
+                     request.onload = function()
+                     {
+                            const response = JSON.parse(request.responseText);
+                            if (response.request)
+                            {
+                                   DefaultState();
+                                   DisplayReview(review, stars.toFixed(2));
+                            }
+                            else
+                            {
+                                   alert("Oh? Something went wrong. Please submit an error report.");
+                            }
+                     }
+                     const data = new FormData();
+                     data.append("review", review);
+                     data.append("stars", stars);
+                     data.append("book", isbn["book"]);
+                     request.send(data);
+                     return false;
+              }
+       }
+}
+
+function CancelReview()
+{
+       document.querySelector('#review-cancel-btn').onclick = function()
+       {
+              DefaultState();
+       }
+}
+
+
+function DeleteReviewAjax()
+{
+       document.querySelector('#delete-button').onclick = function()
+       {
+              if(confirm("Do you want to delete your review?"))
+              {
+                     var isbn = ExtractUrl();
+                     const request = new XMLHttpRequest();
+                     request.open('POST', '/DeleteReview');
+                     request.onload = function()
+                     {
+                            const response = JSON.parse(request.responseText)
+                            if(response.request)
+                            {
+                                   alert("Your review has been deleted");
+                                   document.getElementById('review-star').innerHTML = "";
+                                   document.getElementById("my_review_text").innerHTML = "";
+                                   setReviewButtons();
+                            }
+                            else
+                            {
+                                   alert("Oh? Something went wrong. Please submit an error report.");
+                            }
+                     }
+                     const data= new FormData();
+                     data.append("book", isbn["book"]);
+                     request.send(data);
+                     return false;
+              }
+
+       }
+}
+
+
+function GetOtherReviewsAjax()
+{
+       var isbn = ExtractUrl();
+       const request = new XMLHttpRequest();
+       request.open('POST', '/GetFewReviews');
+       request.onload = function()
+       {
+              const response = JSON.parse(request.responseText);
+              console.log(response);
+       }
+       const data = new FormData();
+       data.append("book", isbn["book"]);
+       request.send(data);
+       return false;
+}
+
+function renderUserReviews(data)
+{
+       var html =""
+       for(let i = 0; i < data.length; i++)
+       {
+
+       }
+}
+
+
+function DisplayReview(review, stars)
+{
+       document.querySelector("#review-star").innerHTML = stars + " / 5.0";
+       document.querySelector('#my_review_text').innerHTML = review;
+       setReviewButtons();
+}
+
+
+function DefaultState()
+{
+       document.getElementById("submit_review_text").style.display = "None";
+       document.getElementById("review-button").style.display = "inline";
+       document.getElementById("edit-button").style.display = "inline";
+       document.getElementById("delete-button").style.display = "inline";
+}
+
+
+function setReviewButtons()
+{
+
+       if(document.querySelector("#my_review_text").innerHTML.split(' ') == "")
+       {
+              document.querySelector('#review-button').classList.remove("disabled");
+              document.querySelector("#edit-button").className += " disabled";
+              document.querySelector("#delete-button").className += " disabled";
+       }
+       else
+       {
+              document.querySelector("#review-button").className += " disabled";
+              document.querySelector("#edit-button").classList.remove("disabled");
+              document.querySelector("#delete-button").classList.remove("disabled");
+       }
+
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function setNavActive(navtag)
 {
        res = document.getElementsByClassName("nav-item");
@@ -346,7 +455,7 @@ function WordCount()
 {
        document.querySelector('#review').onkeyup = function()
        {
-              var wordLimit = 4000;
+              const wordLimit = 4000;
               var wordCount = document.querySelector('#review').value;
               if(parseInt(wordLimit))
               {
@@ -355,3 +464,11 @@ function WordCount()
 
        }
 }
+
+
+//Enumerable
+const bookInfoState ={
+              REVIEW: 'Review',
+              EDIT: 'Edit',
+              ERROR: 'Error'
+};
