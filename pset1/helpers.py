@@ -66,3 +66,16 @@ def bookInfoQueryAsync(isbn):
         query = tasks[0]
 
     return query
+
+
+async def bookqueryAsync(isbn):
+    res = Books.query.filter_by(isbn = isbn).first().dictFormat()
+    await asyncio.sleep(0)
+    return res
+
+
+async def reviewqueryAsync(isbn, user):
+    res = get_table_data(fetch_table(isbn), user)
+    await asyncio.sleep(0)
+    return res
+
