@@ -112,43 +112,28 @@ def selectpage():
     return jsonify({"data" : data, "page_list" : page_list})
 
 
-@app.route("/bookinfo", methods = ["GET"])
-@app.route("/bookinfo/<isbn>", methods = ["GET"])
+@app.route("/bookinfo")
 @login_required
-def bookinfo(isbn=None):
-    if isbn:
-        get_review = getBookReviewAPI(isbn)
-        if get_review:
-            create_table(isbn) #only creates a table if it doesn't exist
-            query = bookInfoQueryAsync(isbn)
+def bookinfo():
+    try:
+        book_isbn = request.args.get("book")
+    except:
+        return render_template("bookinfo.html")
 
-            for item in get_review["book"]:
-                query["review_counts"] = item["reviews_count"]
-                query["average_score"] = item["average_rating"]
+    get_review = getBookReviewAPI(book_isbn)
+    if get_review:
+        create_table(book_isbn) #only creates a table if it doesn't exist
+        query = bookInfoQueryAsync(book_isbn)
 
-            if review:
-                query.update(review)
+        for item in get_review["books"]:
+            query["review_counts"] = item["reviews_count"]
+            query["average_score"] = item["average_rating"]
 
-            return render_template("bookinfo.html", isbnJson = query)
-
-        else:
-            return render_template("bookinfo.html")
+        return render_template("bookinfo.html", json = query)
 
     else:
-        book_isbn = request.args.get("book")
-        get_review = getBookReviewAPI(book_isbn)
-        if get_review:
-            create_table(book_isbn) #only creates a table if it doesn't exist
-            query = bookInfoQueryAsync(book_isbn)
-
-            for item in get_review["books"]:
-                query["review_counts"] = item["reviews_count"]
-                query["average_score"] = item["average_rating"]
-
-            return render_template("bookinfo.html", json = query)
-
-        else:
-            return render_template("bookinfo.html")
+        print("False")
+        return render_template("bookinfo.html")
 
 
 @app.route("/SubmitReview", methods = ["POST"])
@@ -218,7 +203,9 @@ def GetFewReviews():
     except isbnNullError:
         return jsonify()
 
-    return jsonify({"data" : get_table_data_other_users(fetch_table(isbn), getusername(session["user_id"]))})
+    data = get_table_data_other_users(fetch_table(isbn), getusername(session["user_id"]))
+    print(data)
+    return jsonify({"data" : data})
 
 
 @app.route("/Error", methods = ["POST"])
@@ -229,6 +216,7 @@ def Error():
 @app.route("/about")
 @login_required
 def about():
+    print("About")
     return render_template("about.html")
 
 @app.errorhandler(404)
@@ -241,4 +229,4 @@ def page_not_found(e):
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True, use_reloader=False)

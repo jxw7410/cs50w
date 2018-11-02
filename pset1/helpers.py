@@ -1,6 +1,5 @@
 from dbModels import *
 from functools import wraps
-from tempfile import mkdtemp
 
 def login_required(f):
     """
