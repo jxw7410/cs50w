@@ -1,7 +1,6 @@
 //Main function
 document.addEventListener("DOMContentLoaded", function()
 {
-              console.log("This")
               if (window.location.pathname == "/login")
               {
                      setNavActive("Login");

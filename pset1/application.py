@@ -132,7 +132,6 @@ def bookinfo():
         return render_template("bookinfo.html", json = query)
 
     else:
-        print("False")
         return render_template("bookinfo.html")
 
 
@@ -204,7 +203,6 @@ def GetFewReviews():
         return jsonify()
 
     data = get_table_data_other_users(fetch_table(isbn), getusername(session["user_id"]))
-    print(data)
     return jsonify({"data" : data})
 
 
@@ -216,7 +214,6 @@ def Error():
 @app.route("/about")
 @login_required
 def about():
-    print("About")
     return render_template("about.html")
 
 @app.errorhandler(404)

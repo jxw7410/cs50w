@@ -63,7 +63,6 @@ def bookInfoQueryAsync(isbn):
         query.update(tasks[1])
     else:
         query = tasks[0]
-
     return query
 
 

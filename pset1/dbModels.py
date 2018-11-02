@@ -61,9 +61,10 @@ def fetch_table(table_name, engine = userdbEngine):
 
 def get_table_data(table, user):
     try:
-        query = sessionengine.query(table).filter_by(User = user).one()
+        query = sessionengine.query(table).filter_by(User = user).first()
     except:
-        return None
+        return {"rating" : 0.0, "Review" : "Error, Please Reload"}
+
     return {"rating" : query[2], "review" : query[3]}
 
 
@@ -86,7 +87,6 @@ def insert_table(table, string, rating, user):
         connection.execute(table.insert(values={"User" : user, "Rating" : rating, "Value" : string}))
         transaction.commit()
     except:
-        print("error detected")
         transaction.rollback()
         connection.close()
         return False
@@ -100,7 +100,6 @@ def delete_table(table, user):
         connection.execute(table.delete().where(table.c.User == user))
         transaction.commit()
     except:
-        print("error detected")
         transaction.rollback()
         connection.close()
         return False
