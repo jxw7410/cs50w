@@ -33,7 +33,8 @@ db.create_all();
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Float
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
-userdbEngine = create_engine('sqlite:///database/bookreviews.db')
+userdbEngine = create_engine('sqlite:///database/bookreviews.db', connect_args={'check_same_thread': False})
+#connect_args to prevent a threading error to occur, inherently dangerous workaround.
 mSession = sessionmaker(bind=userdbEngine)
 sessionengine = mSession()
 
@@ -62,7 +63,8 @@ def fetch_table(table_name, engine = userdbEngine):
 def get_table_data(table, user):
     try:
         query = sessionengine.query(table).filter_by(User = user).first()
-    except:
+    except Exception as e:
+        print(e)
         return {"rating" : 0.0, "Review" : "Error, Please Reload"}
 
     return {"rating" : query[2], "review" : query[3]}
@@ -86,7 +88,8 @@ def insert_table(table, string, rating, user):
     try:
         connection.execute(table.insert(values={"User" : user, "Rating" : rating, "Value" : string}))
         transaction.commit()
-    except:
+    except Exception as e:
+        print(e)
         transaction.rollback()
         connection.close()
         return False
@@ -99,7 +102,8 @@ def delete_table(table, user):
     try:
         connection.execute(table.delete().where(table.c.User == user))
         transaction.commit()
-    except:
+    except Exception as e:
+        print(e)
         transaction.rollback()
         connection.close()
         return False
@@ -112,7 +116,8 @@ def update_table(table, review, rating, user):
     try:
         connection.execute(table.update(values = {"Rating" : rating, "Value" : review}).where(table.c.User == user))
         transaction.commit()
-    except:
+    except Exception as e:
+        print(e)
         transaction.rollback()
         connection.close()
         return False
