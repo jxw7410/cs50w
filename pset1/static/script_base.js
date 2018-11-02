@@ -1,7 +1,6 @@
 //Main function
-(function(){
-       document.addEventListener("DOMContentLoaded", function()
-       {
+document.addEventListener("DOMContentLoaded", function()
+{
               if (window.location.pathname == "/login")
               {
                      setNavActive("Login");
@@ -22,11 +21,10 @@
                      setNavActive("Search");
                      SearchBarAjax(book_search_res, temporary_search_storage);
                      PaginationAjax(book_search_res, temporary_search_storage);
-                     Help();
 
               }
 
-              if(/bookinfo/.test(window.location.href))
+              if(window.location.href.indexOf("bookinfo") > -1)
               {
                      setReviewButtons();
                      GetOtherReviewsAjax();
@@ -42,9 +40,8 @@
                      setNavActive("About");
               }
 
+});
 
-       });
-})();
 
 
 function LoginAjax()
@@ -188,16 +185,16 @@ function PrintSearchTable(data)
        table = document.getElementById('search_table_result');
        while(table.firstChild)
               table.removeChild(table.firstChild)
-       html = "<thead><tr><th>ISBN</th><th>TITLE</th><th>AUTHOR</th><th>YEAR</th></tr><tbody></tbody>";
-       tableRef = document.getElementById('search_table_result').getElementsByTagName('tbody')[0];
+       html = "<thead><tr><th>ISBN</th><th>TITLE</th><th>AUTHOR</th><th>YEAR</th></tr><tbody>";
+       //tableRef = document.getElementById('search_table_result').getElementsByTagName('tbody')[0];
        for (let index = 0; index < data.length; index++)
        {
-              html += "<tr><td><a href='/bookinfo?book="  + data[index].isbn + "'>" + data[index].isbn + "</a></td>"
-                     +"<td>" + data[index].title + "</td>"
-                     + "<td>" + data[index].author + "</td>"
-                     + "<td>" + data[index].year + "</td></tr>";
+              html += "<tr><td><a class='booklink' href='/bookinfo?book="  + data[index].isbn + "'>" + data[index].isbn + "</a></td>"
+                     +"<td><a class='booklink' href='/bookinfo?book="  + data[index].isbn + "'>" + data[index].title + "</a></td>"
+                     + "<td><a class='booklink' href='/bookinfo?book="  + data[index].isbn + "'>" + data[index].author + "</a></td>"
+                     + "<td><a  class='booklink'href='/bookinfo?book="  + data[index].isbn + "'>" + data[index].year + "</a></td></tr>";
        }
-       table.innerHTML += html;
+       table.innerHTML += html + "</tbody>";
 }
 
 function PrintPageList(data)
@@ -230,16 +227,6 @@ function isEmpty(obj)
                      return false;
        return true;
 }
-
-
-function Help()
-{
-       document.querySelector('#help-btn').onclick = function()
-       {
-              alert("Please put in part of (or the entire) an isbn, author, or book name");
-       }
-}
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 function mReview(htmlID)
@@ -432,6 +419,7 @@ function setNavActive(navtag)
                      if (res[i].getAttribute("tag") == navtag)
                             res[i].className += " active";
               }
+       return false;
 }
 
 

@@ -33,7 +33,8 @@ db.create_all();
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Float
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
-userdbEngine = create_engine('sqlite:///database/bookreviews.db')
+userdbEngine = create_engine('sqlite:///database/bookreviews.db', connect_args={'check_same_thread': False})
+#connect_args to prevent a threading error to occur, inherently dangerous workaround.
 mSession = sessionmaker(bind=userdbEngine)
 sessionengine = mSession()
 
@@ -61,9 +62,11 @@ def fetch_table(table_name, engine = userdbEngine):
 
 def get_table_data(table, user):
     try:
-        query = sessionengine.query(table).filter_by(User = user).one()
-    except:
-        return None
+        query = sessionengine.query(table).filter_by(User = user).first()
+    except Exception as e:
+        print(e)
+        return {"rating" : 0.0, "Review" : "Error, Please Reload"}
+
     return {"rating" : query[2], "review" : query[3]}
 
 
@@ -72,18 +75,10 @@ def get_table_data_other_users(table, user):
         query = sessionengine.query(table).filter(table.c.User != user).limit(5).all()
     except:
         return None
-    return query
-
-async def bookqueryAsync(isbn):
-    res = Books.query.filter_by(isbn = isbn).first().dictFormat()
-    await asyncio.sleep(0)
-    return res
-
-
-async def reviewqueryAsync(isbn, user):
-    res = get_table_data(fetch_table(isbn), user)
-    await asyncio.sleep(0)
-    return res
+    ret = []
+    for item in query:
+        ret.append({"user": item[1], "rating" : item[2], "review" : item[3]})
+    return ret
 
 #command functions
 #To post message into table
@@ -93,8 +88,8 @@ def insert_table(table, string, rating, user):
     try:
         connection.execute(table.insert(values={"User" : user, "Rating" : rating, "Value" : string}))
         transaction.commit()
-    except:
-        print("error detected")
+    except Exception as e:
+        print(e)
         transaction.rollback()
         connection.close()
         return False
@@ -107,8 +102,8 @@ def delete_table(table, user):
     try:
         connection.execute(table.delete().where(table.c.User == user))
         transaction.commit()
-    except:
-        print("error detected")
+    except Exception as e:
+        print(e)
         transaction.rollback()
         connection.close()
         return False
@@ -121,7 +116,8 @@ def update_table(table, review, rating, user):
     try:
         connection.execute(table.update(values = {"Rating" : rating, "Value" : review}).where(table.c.User == user))
         transaction.commit()
-    except:
+    except Exception as e:
+        print(e)
         transaction.rollback()
         connection.close()
         return False
