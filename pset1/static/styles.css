@@ -46,6 +46,7 @@ a.booklink:link, a.booklink:visited, a.booklink:hover, a.booklink:active
 #submit_review_text
 {
     display: none;
+    padding-top: 10px;
 }
 
 #review_text_btns
@@ -67,10 +68,37 @@ a.booklink:link, a.booklink:visited, a.booklink:hover, a.booklink:active
     padding: 5px;
     background-color: #ffffff;
 }
+
+
+#other-user-reviews-ctn
+{
+    padding-top: 10px;
+}
+
+#user-date-post
+{
+    float:right;
+}
+
+.center
+{
+    text-align: center;
+}
+
+.padding-top-div
+{
+    padding-top: 30px;
+}
+
+.review-box-padding
+{
+    padding-top: 10px;
+}
 .review-span
 {
     color: #000000;
     padding: 5px;
+    position: relative;
 }
 
 .user-review-ctn
@@ -78,9 +106,10 @@ a.booklink:link, a.booklink:visited, a.booklink:hover, a.booklink:active
     border-style:solid;
     border-width:1px;
     border-radius: 5px;
-    padding: 5px;
+    padding: 10px;
     color: #d0dbde;
     background-color: #d0dbde;
+
 }
 
 
@@ -107,5 +136,3 @@ a.booklink:link, a.booklink:visited, a.booklink:hover, a.booklink:active
 {
     text-align: center;
 }
-
-

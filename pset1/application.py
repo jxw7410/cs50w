@@ -5,7 +5,6 @@ Import order MATTERS
 import os
 import json
 from helpers import *
-from errors import *
 
 @app.route("/login", methods = ["GET", "POST"])
 def login():
@@ -142,14 +141,19 @@ def SubmitReview():
         review = request.form.get("review")
         stars = float(request.form.get("stars"))
         isbn = request.form.get("book")
+        date = request.form.get("date")
         if isbn is None:
             raise isbnNullError
+        if date is None:
+            raise dateNullError
     except ValueError:
         return jsonify()
     except isbnNullError:
         return jsonify()
+    except dateNullError:
+        return jsonify()
 
-    if insert_table(fetch_table(isbn), review, float("{0:.2f}".format(stars)), getusername(session["user_id"])):
+    if insert_table(fetch_table(isbn), review, float("{0:.2f}".format(stars)), date, getusername(session["user_id"])):
         return jsonify({"request" : True})
 
     return jsonify()
@@ -163,14 +167,17 @@ def EditReview():
         review = request.form.get("review")
         stars = float(request.form.get("stars"))
         isbn = request.form.get("book")
+        date = request.form.get("date")
         if isbn is None:
             raise isbnNullError
+        if date is None:
+            raise dateNullError
     except ValueError:
         return jsonify()
     except isbnNullError:
         return jsonify()
 
-    if update_table(fetch_table(isbn), review, float("{0:.2f}".format(stars)), getusername(session["user_id"])):
+    if update_table(fetch_table(isbn), review, float("{0:.2f}".format(stars)), date, getusername(session["user_id"])):
         return jsonify({"request" : True})
 
     return jsonify()
@@ -203,7 +210,10 @@ def GetFewReviews():
         return jsonify()
 
     data = get_table_data_other_users(fetch_table(isbn), getusername(session["user_id"]))
-    return jsonify({"data" : data})
+    if data:
+        return jsonify({"data" : data})
+
+    return jsonify()
 
 
 @app.route("/Error", methods = ["POST"])

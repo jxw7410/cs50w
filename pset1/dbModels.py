@@ -1,4 +1,5 @@
 from init_config import *
+from errors import *
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -44,7 +45,8 @@ def create_table(table_name, engine = userdbEngine):
     Table(table_name, metadata, Column('Id', Integer, primary_key=True),
                                 Column('User', String(32), nullable=False, unique=True),
                                 Column('Rating', Float, nullable=False),
-                                Column('Value', String(4000), nullable=False))
+                                Column('Review', String(4000), nullable=False),
+                                Column('Date', String(32), nullable=False))
     if not engine.dialect.has_table(engine, table_name):
         metadata.create_all()
 
@@ -54,7 +56,8 @@ def fetch_table(table_name, engine = userdbEngine):
     Table(table_name, metadata, Column('Id', Integer, primary_key=True),
                                 Column('User', String(32), nullable=False, unique=True),
                                 Column('Rating', Float, nullable=False),
-                                Column('Value', String(4000), nullable=False))
+                                Column('Review', String(4000), nullable=False),
+                                Column('Date', String(32), nullable=False))
     if not engine.dialect.has_table(engine, table_name):
         return None
     return metadata.tables[table_name]
@@ -63,11 +66,12 @@ def fetch_table(table_name, engine = userdbEngine):
 def get_table_data(table, user):
     try:
         query = sessionengine.query(table).filter_by(User = user).first()
-    except Exception as e:
-        print(e)
-        return {"rating" : 0.0, "Review" : "Error, Please Reload"}
+        if query is None:
+            raise EmptyQueryError
+    except EmptyQueryError:
+            return { "rating" : "", "review" : "", "date" : "" }
 
-    return {"rating" : query[2], "review" : query[3]}
+    return {"rating" : query[2], "review" : query[3], "date" : query[4]}
 
 
 def get_table_data_other_users(table, user):
@@ -77,19 +81,31 @@ def get_table_data_other_users(table, user):
         return None
     ret = []
     for item in query:
-        ret.append({"user": item[1], "rating" : item[2], "review" : item[3]})
+        ret.append({"user": item[1], "rating" : item[2], "review" : item[3], "date" : item[4]})
     return ret
 
 #command functions
 #To post message into table
-def insert_table(table, string, rating, user):
+def insert_table(table, string, rating, date, user):
     connection = userdbEngine.connect()
     transaction = connection.begin()
     try:
-        connection.execute(table.insert(values={"User" : user, "Rating" : rating, "Value" : string}))
+        connection.execute(table.insert(values={"User" : user, "Rating" : rating, "Review" : string, "Date" : date}))
         transaction.commit()
     except Exception as e:
-        print(e)
+        transaction.rollback()
+        connection.close()
+        return False
+    connection.close()
+    return True
+
+def update_table(table, review, rating, date, user):
+    connection = userdbEngine.connect()
+    transaction = connection.begin()
+    try:
+        connection.execute(table.update(values = {"Rating" : rating, "Review" : review, "Date" : date}).where(table.c.User == user))
+        transaction.commit()
+    except Exception as e:
         transaction.rollback()
         connection.close()
         return False
@@ -103,21 +119,6 @@ def delete_table(table, user):
         connection.execute(table.delete().where(table.c.User == user))
         transaction.commit()
     except Exception as e:
-        print(e)
-        transaction.rollback()
-        connection.close()
-        return False
-    connection.close()
-    return True
-
-def update_table(table, review, rating, user):
-    connection = userdbEngine.connect()
-    transaction = connection.begin()
-    try:
-        connection.execute(table.update(values = {"Rating" : rating, "Value" : review}).where(table.c.User == user))
-        transaction.commit()
-    except Exception as e:
-        print(e)
         transaction.rollback()
         connection.close()
         return False

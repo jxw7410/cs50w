@@ -1,36 +1,36 @@
+
+
 //Main function
 document.addEventListener("DOMContentLoaded", function()
 {
               if (window.location.pathname == "/login")
               {
                      setNavActive("Login");
-                     LoginAjax();
+                     Login();
               }
 
               if (window.location.pathname == "/register")
               {
                      setNavActive("Register");
-                     RegisterAjax();
+                     Register();
               }
 
               if (window.location.pathname == "/")
               {
-
                      var temporary_search_storage = {};
                      var book_search_res = "";
                      setNavActive("Search");
-                     SearchBarAjax(book_search_res, temporary_search_storage);
-                     PaginationAjax(book_search_res, temporary_search_storage);
+                     SearchBar(book_search_res, temporary_search_storage);
 
               }
 
               if(window.location.href.indexOf("bookinfo") > -1)
               {
                      setReviewButtons();
-                     GetOtherReviewsAjax();
+                     GetOtherReviews();
                      mReview('#review-button');
                      mReview('#edit-button');
-                     DeleteReviewAjax();
+                     DeleteReview();
                      CancelReview();
                      WordCount();
               }
@@ -43,44 +43,38 @@ document.addEventListener("DOMContentLoaded", function()
 });
 
 
-
-function LoginAjax()
+function Login()
 {
-       document.querySelector("#login").onsubmit = function(){
-              const request = new XMLHttpRequest();
-              const username = document.querySelector("#username").value;
-              const password = document.querySelector("#password").value;
-              request.open('POST', '/login');
-              request.onload = function ()
+       document.querySelector("#login").onsubmit = function()
+       {
+              let params =
               {
-                     const response = JSON.parse(request.responseText)
+                     "username" : document.querySelector("#username").value,
+                     "password" : document.querySelector("#password").value
+              }
+              RequestAjax("/login", params, function(response)
+              {
                      if (response.request)
                             window.location.href = "/"
                      else
                             alert("Username or Password is incorrect or does not exist.");
-                     };
-                     const data = new FormData();
-                     data.append("username", username);
-                     data.append("password", password);
-                     request.send(data);
-                     return false;
-              };
+              });
+              return false;
+       }
 }
 
-
-function RegisterAjax()
+function Register()
 {
        document.querySelector("#register").onsubmit = function()
        {
-              const request = new XMLHttpRequest();
-              const username = document.querySelector("#username").value;
-              const password = document.querySelector("#password").value;
-              const passwordAgain = document.querySelector("#password_again").value;
-              request.open('POST', '/register');
-              request.onload = function ()
+              let params =
               {
-                     const response = JSON.parse(request.responseText)
-                     console.log(response);
+                     "username" :  document.querySelector("#username").value,
+                     "password" : document.querySelector("#password").value,
+                     "passwordAgain" : document.querySelector("#password_again").value
+              }
+              RequestAjax("/register", params, function(response)
+              {
                      if (response.request)
                             window.location.href = "/"
                      else
@@ -92,28 +86,25 @@ function RegisterAjax()
                             else
                                    alert("Unknown Error");
                      }
-              };
-              const data = new FormData();
-              data.append("username", username);
-              data.append("password", password);
-              data.append("passwordAgain", passwordAgain)
-              request.send(data);
+              });
               return false;
        };
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function SearchBarAjax(book_search_res, temporary_search_storage)
+
+function SearchBar(book_search_res, temporary_search_storage)
 {
        document.querySelector("#search_bar").onsubmit = function()
        {
-              const request = new XMLHttpRequest();
+
               book_search_res = document.querySelector("#book").value;
-              request.open('POST', '/search');
-              request.onload = function ()
+              let params =
               {
-                     const response = JSON.parse(request.responseText)
+                     "book" : book_search_res
+              };
+              RequestAjax('/search', params, function(response)
+              {
                      if (response.data)
                      {
                             if (!isEmpty(temporary_search_storage))
@@ -125,20 +116,17 @@ function SearchBarAjax(book_search_res, temporary_search_storage)
                                    "data" : response.data,
                                    "page_list" : response.page_list
                             }
+                            Pagination(book_search_res, temporary_search_storage);
                      }
                      else
                             alert("Item in search not found");
-              };
-              const data = new FormData();
-              data.append("book", book_search_res);
-              request.send(data);
+              });
               return false;
        };
 }
 
 
-
-function PaginationAjax(book_search_res, temporary_search_storage)
+function Pagination(book_search_res, temporary_search_storage)
 {
        document.querySelector('#search_table_pagination').addEventListener('click', function(event)
        {
@@ -152,11 +140,13 @@ function PaginationAjax(book_search_res, temporary_search_storage)
                      }
                      else
                      {
-                            const request = new XMLHttpRequest();
-                            request.open('POST', '/selectpage');
-                            request.onload = function()
+                            let params =
                             {
-                                   const response = JSON.parse(request.responseText)
+                                   "book" : book_search_res,
+                                   "page" : pageNum
+                            };
+                            RequestAjax('/selectpage', params, function(response)
+                            {
                                    if(response.data)
                                    {
                                           PrintSearchTable(response.data);
@@ -169,11 +159,7 @@ function PaginationAjax(book_search_res, temporary_search_storage)
                                    }
                                    else
                                           alert("error")
-                            };
-                            const data = new FormData();
-                            data.append("book", book_search_res);
-                            data.append("page", pageNum);
-                            request.send(data);
+                            });
                             return false;
                      }
               }
@@ -186,7 +172,6 @@ function PrintSearchTable(data)
        while(table.firstChild)
               table.removeChild(table.firstChild)
        html = "<thead><tr><th>ISBN</th><th>TITLE</th><th>AUTHOR</th><th>YEAR</th></tr><tbody>";
-       //tableRef = document.getElementById('search_table_result').getElementsByTagName('tbody')[0];
        for (let index = 0; index < data.length; index++)
        {
               html += "<tr><td><a class='booklink' href='/bookinfo?book="  + data[index].isbn + "'>" + data[index].isbn + "</a></td>"
@@ -239,15 +224,15 @@ function mReview(htmlID)
               document.getElementById("delete-button").style.display = "None";
 
               if (htmlID == '#review-button')
-                     SubmitReviewAjax(bookInfoState.REVIEW);
+                     SubmitReview(bookInfoState.REVIEW);
               else if (htmlID == '#edit-button')
-                     SubmitReviewAjax(bookInfoState.EDIT);
+                     SubmitReview(bookInfoState.EDIT);
               else
-                     SubmitReviewAjax(bookInfoState.ERROR);
+                     SubmitReview(bookInfoState.ERROR);
        }
 }
 
-function SubmitReviewAjax(book_info_state)
+function SubmitReview(book_info_state)
 {
        document.querySelector('#reviewform').onsubmit = function()
        {
@@ -265,43 +250,39 @@ function SubmitReviewAjax(book_info_state)
                             break;
               }
 
-              const review = document.querySelector('#review').value;
-              const stars = parseFloat(document.querySelector('#stars').value);
-              var isbn = ExtractUrl();
-              if (!stars || (stars > 5 || stars < 0))
+              let params =
+              {
+                     "review" : document.querySelector('#review').value,
+                     "stars" : parseFloat(document.querySelector('#stars').value),
+                     "book" : ExtractUrl(),
+                     "date" : new Date().toLocaleString().replace(",","").replace(/:.. /," ")
+              }
+              console.log(params["date"]);
+
+              if (!params["stars"] || (params["stars"] > 5 || params["stars"] < 0))
               {
                      alert("Please submit a valid stars rating");
                      return false;
               }
-              else if(review.split(" ") == "")
+              else if (params["review"].split(" ") == "")
               {
                      alert("Please fill in the review text field");
                      return false;
               }
-              else
+
+              RequestAjax(url, params, function(response)
               {
-                     const request = new XMLHttpRequest();
-                     request.open('POST', url);
-                     request.onload = function()
+                     if (response.request)
                      {
-                            const response = JSON.parse(request.responseText);
-                            if (response.request)
-                            {
                                    DefaultState();
-                                   DisplayReview(review, stars.toFixed(2));
-                            }
-                            else
-                            {
-                                   alert("Oh? Something went wrong. Please submit an error report.");
-                            }
+                                   DisplayReview(params["review"], params["stars"].toFixed(1), params["date"]);
                      }
-                     const data = new FormData();
-                     data.append("review", review);
-                     data.append("stars", stars);
-                     data.append("book", isbn["book"]);
-                     request.send(data);
-                     return false;
-              }
+                     else
+                     {
+                            alert("Oh? Something went wrong. Please submit an error report.");
+                     }
+              });
+              return false;
        }
 }
 
@@ -314,22 +295,23 @@ function CancelReview()
 }
 
 
-function DeleteReviewAjax()
+function DeleteReview()
 {
        document.querySelector('#delete-button').onclick = function()
        {
               if(confirm("Do you want to delete your review?"))
               {
-                     var isbn = ExtractUrl();
-                     const request = new XMLHttpRequest();
-                     request.open('POST', '/DeleteReview');
-                     request.onload = function()
+                     let params =
                      {
-                            const response = JSON.parse(request.responseText)
+                            "book" : ExtractUrl()
+                     };
+                     RequestAjax("/DeleteReview", params, function(response)
+                     {
                             if(response.request)
                             {
                                    alert("Your review has been deleted");
-                                   document.getElementById('review-star').innerHTML = "";
+                                   document.getElementById('user-rating').innerHTML =  "0.00 / 5.0";
+                                   document.getElementById('user-date-post').innerHTML = "";
                                    document.getElementById("my_review_text").innerHTML = "";
                                    setReviewButtons();
                             }
@@ -337,46 +319,52 @@ function DeleteReviewAjax()
                             {
                                    alert("Oh? Something went wrong. Please submit an error report.");
                             }
-                     }
-                     const data= new FormData();
-                     data.append("book", isbn["book"]);
-                     request.send(data);
+                     });
                      return false;
               }
-
        }
 }
 
-
-function GetOtherReviewsAjax()
+function GetOtherReviews()
 {
-       var isbn = ExtractUrl();
        const request = new XMLHttpRequest();
-       request.open('POST', '/GetFewReviews');
+       request.open('POST', "/GetFewReviews");
        request.onload = function()
        {
               const response = JSON.parse(request.responseText);
-              console.log(response);
-       }
-       const data = new FormData();
-       data.append("book", isbn["book"]);
+              console.log(response.data)
+              if (response.data)
+                     renderUserReviews(response.data);
+       };
+       data = new FormData();
+       data.append("book", ExtractUrl());
        request.send(data);
-       return false;
 }
+
+
 
 function renderUserReviews(data)
 {
        var html =""
        for(let i = 0; i < data.length; i++)
        {
-
+              html += "<div class='review-box-padding'>"
+                     +"<div class='user-review-ctn drop-shadow-style1'>"
+                     +"<div class='review-span'><span><strong>" + data[i].user + "</strong>"
+                     +"<span id='user-rating' class='review-star'>:  " + parseFloat(data[i].rating).toFixed(1)+ " / 5.0" + "</span>"
+                     +"<span id='user-date-post'>" + data[i].date+ "</span> </span></div>"
+                     +"<div> <p id='review-container' rows='4' cols='50'>"
+                     +"<span id ='my_review_text' class='review-span'>" + data[i].review + "</span></p></div></div></div>";
        }
+       html += "<div><a class='ctm-link center' href='#'>Read More</a></div>";
+       document.getElementById('other-user-reviews-ctn').innerHTML = html;
 }
 
 
-function DisplayReview(review, stars)
+function DisplayReview(review, stars, date)
 {
-       document.querySelector("#review-star").innerHTML = stars + " / 5.0";
+       document.getElementById('user-rating').innerHTML = stars + " / 5.0";
+       document.getElementById('user-date-post').innerHTML = date;
        document.querySelector('#my_review_text').innerHTML = review;
        setReviewButtons();
 }
@@ -436,7 +424,7 @@ function ExtractUrl(url = window.location.search.substr(1).split('&'))
         else
             params[parse[0]] = decodeURIComponent(parse[1].replace(/\+/g, " "));
     }
-    return params;
+    return params[parse[0]];
 }
 
 function WordCount()
@@ -460,3 +448,22 @@ const bookInfoState ={
               EDIT: 'Edit',
               ERROR: 'Error'
 };
+
+
+function RequestAjax(link, params, callbackfunction, method='POST')
+{
+       const request = new XMLHttpRequest();
+       request.open(method, link);
+       request.onload = function()
+       {
+              const response = JSON.parse(request.responseText);
+              callbackfunction(response);
+       };
+       const data = new FormData();
+       keys = Object.keys(params)
+       for (let i = 0; i < keys.length; i++)
+       {
+              data.append(keys[i], params[keys[i]]);
+       }
+       request.send(data);
+}
