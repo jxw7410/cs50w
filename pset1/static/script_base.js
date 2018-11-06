@@ -1,8 +1,9 @@
-
+var user;
 
 //Main function
 document.addEventListener("DOMContentLoaded", function()
 {
+
               if (window.location.pathname == "/login")
               {
                      setNavActive("Login");
@@ -55,7 +56,10 @@ function Login()
               RequestAjax("/login", params, function(response)
               {
                      if (response.request)
+                     {
+                            user = response.user;
                             window.location.href = "/"
+                     }
                      else
                             alert("Username or Password is incorrect or does not exist.");
               });
@@ -327,21 +331,43 @@ function DeleteReview()
 
 function GetOtherReviews()
 {
-       const request = new XMLHttpRequest();
-       request.open('POST', "/GetFewReviews");
-       request.onload = function()
+       let param=
        {
-              const response = JSON.parse(request.responseText);
-              console.log(response.data)
-              if (response.data)
-                     renderUserReviews(response.data);
-       };
-       data = new FormData();
-       data.append("book", ExtractUrl());
-       request.send(data);
+              "book" : ExtractUrl()
+       }
+       RequestAjax('/GetFewReviews', param, function(response)
+       {
+          if(response.data)
+          {
+              renderUserReviews(response.data);
+              jqueryinfscrollreviews(param);
+          }
+       });
 }
 
+function jqueryinfscrollreviews(param)
+{
+       $(window).scroll(function () {
+            if ($(window).scrollTop() == $(document).height() - $(window).height())
+            {
+                     RequestAjax('/nextreview', param, function(response)
+                     {
+                            if(response.data)
+                            {
+                                   var html =    "<div class='review-box-padding'>"
+                                                 +"<div class='user-review-ctn drop-shadow-style1'>"
+                                                 +"<div class='review-span'><span><strong>" + response.data.user + "</strong>"
+                                                 +"<span id='user-rating' class='review-star'>:  " + parseFloat(response.data.rating).toFixed(1)+ " / 5.0" + "</span>"
+                                                 +"<span id='user-date-post'>" + response.data.date+ "</span> </span></div>"
+                                                 +"<div> <p id='review-container' rows='4' cols='50'>"
+                                                 +"<span id ='my_review_text' class='review-span'>" + response.data.review + "</span></p></div></div></div>";
+                                   document.getElementById('other-user-reviews-ctn').innerHTML += html;
+                            }
 
+                     });
+            }
+       });
+}
 
 function renderUserReviews(data)
 {
@@ -356,7 +382,6 @@ function renderUserReviews(data)
                      +"<div> <p id='review-container' rows='4' cols='50'>"
                      +"<span id ='my_review_text' class='review-span'>" + data[i].review + "</span></p></div></div></div>";
        }
-       html += "<div><a class='ctm-link center' href='#'>Read More</a></div>";
        document.getElementById('other-user-reviews-ctn').innerHTML = html;
 }
 

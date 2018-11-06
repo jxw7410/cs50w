@@ -31,7 +31,7 @@ class Books(db.Model):
 db.create_all();
 
 #open up engine for dynamic ORM, stores info as metadata.
-from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Float
+from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Float, over, func
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
 userdbEngine = create_engine('sqlite:///database/bookreviews.db', connect_args={'check_same_thread': False})
@@ -83,6 +83,15 @@ def get_table_data_other_users(table, user):
     for item in query:
         ret.append({"user": item[1], "rating" : item[2], "review" : item[3], "date" : item[4]})
     return ret
+
+def get_next_review(table, id_ref):
+    try:
+        query = sessionengine.query(table).filter_by(Id = id_ref).first()
+        if query is None:
+            raise EmptyQueryError
+    except EmptyQueryError:
+        return None
+    return {"user": query[1], "rating" : query[2], "review" : query[3], "date" : query[4]}
 
 #command functions
 #To post message into table

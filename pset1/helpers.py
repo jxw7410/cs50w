@@ -1,5 +1,6 @@
 from dbModels import *
 from functools import wraps
+from enum import Enum
 
 def login_required(f):
     """
@@ -39,6 +40,7 @@ def paginate_query(query, page = 1, items_per_page = 20):
 def query_book(book):
     return Books.query.filter(Books.isbn.like("%" + book + "%"))
 
+
 def getusername(sessionid):
     return User.query.filter_by(id = sessionid).first().GetUserName()
 
@@ -55,7 +57,7 @@ def bookInfoQueryAsync(isbn):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     tasks = loop.run_until_complete(asyncio.gather(bookqueryAsync(isbn),
-                                    reviewqueryAsync(isbn, getusername(session["user_id"]))))
+                                    reviewqueryAsync(isbn, session["username"])))
     loop.close()
 
     if tasks[1]:
