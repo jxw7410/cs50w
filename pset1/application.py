@@ -5,7 +5,6 @@ Import order MATTERS
 import os
 import json
 from helpers import *
-from errors import *
 
 @app.route("/login", methods = ["GET", "POST"])
 def login():
@@ -21,6 +20,7 @@ def login():
             return jsonify()
 
         session["user_id"] = dbUser.id
+        session["username"] = username
         return jsonify({"request" : True})
 
     return render_template("login.html")
@@ -58,7 +58,7 @@ def register():
 @app.route("/index")
 @login_required
 def index():
-    return render_template("index.html")
+    return render_template("index.html", user = session["username"])
 
 
 
@@ -129,10 +129,11 @@ def bookinfo():
             query["review_counts"] = item["reviews_count"]
             query["average_score"] = item["average_rating"]
 
-        return render_template("bookinfo.html", json = query)
+        session["other_posts_counter"] = 6 if session["user_id"] > 5 else 7
+        return render_template("bookinfo.html", json = query, user = session["username"])
 
     else:
-        return render_template("bookinfo.html")
+        return render_template("bookinfo.html", user = session["username"])
 
 
 @app.route("/SubmitReview", methods = ["POST"])
@@ -142,14 +143,19 @@ def SubmitReview():
         review = request.form.get("review")
         stars = float(request.form.get("stars"))
         isbn = request.form.get("book")
+        date = request.form.get("date")
         if isbn is None:
             raise isbnNullError
+        if date is None:
+            raise dateNullError
     except ValueError:
         return jsonify()
     except isbnNullError:
         return jsonify()
+    except dateNullError:
+        return jsonify()
 
-    if insert_table(fetch_table(isbn), review, float("{0:.2f}".format(stars)), getusername(session["user_id"])):
+    if insert_table(fetch_table(isbn), review, float("{0:.2f}".format(stars)), date, session["username"]):
         return jsonify({"request" : True})
 
     return jsonify()
@@ -163,14 +169,17 @@ def EditReview():
         review = request.form.get("review")
         stars = float(request.form.get("stars"))
         isbn = request.form.get("book")
+        date = request.form.get("date")
         if isbn is None:
             raise isbnNullError
+        if date is None:
+            raise dateNullError
     except ValueError:
         return jsonify()
     except isbnNullError:
         return jsonify()
 
-    if update_table(fetch_table(isbn), review, float("{0:.2f}".format(stars)), getusername(session["user_id"])):
+    if update_table(fetch_table(isbn), review, float("{0:.2f}".format(stars)), date, session["username"]):
         return jsonify({"request" : True})
 
     return jsonify()
@@ -186,7 +195,7 @@ def DeleteReview():
     except isbnNullError:
         return jsonify()
 
-    if delete_table(fetch_table(isbn), getusername(session["user_id"])):
+    if delete_table(fetch_table(isbn), session["username"]):
         return jsonify({"request" : True})
 
     return jsonify()
@@ -202,9 +211,29 @@ def GetFewReviews():
     except isbnNullError:
         return jsonify()
 
-    data = get_table_data_other_users(fetch_table(isbn), getusername(session["user_id"]))
-    return jsonify({"data" : data})
+    data = get_table_data_other_users(fetch_table(isbn), session["username"])
+    if data:
+        return jsonify({"data" : data})
 
+    return jsonify()
+
+@app.route("/nextreview", methods = ["POST"])
+@login_required
+def nextreview():
+    try:
+        isbn = request.form.get("book")
+        if isbn is None:
+            raise isbnNullError
+    except isbnNullError:
+        return jsonify()
+    id_ref = session["other_posts_counter"] if session["other_posts_counter"] is not session["user_id"] else session["other_posts_counter"] + 1
+    data = get_next_review(fetch_table(isbn), id_ref)
+    if data:
+        session["other_posts_counter"] = id_ref + 1
+        return jsonify({"data" : data})
+
+    session["other_posts_counter"] = id_ref
+    return jsonify()
 
 @app.route("/Error", methods = ["POST"])
 @login_required

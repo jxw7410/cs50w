@@ -16,10 +16,18 @@
     </div>
     <!--My Review-->
     <div class="user-review-ctn drop-shadow-style1">
-        <span class="review-span"><strong>My Review: </strong> <span id="review-star"> {%if json["rating"]%}{{json["rating"]}} / 5.0 {%else%} 0.00 / 5.0 {%endif%}</span></span>
-        <p id="review-container" rows="4" cols="50">
-            <span id ="my_review_text" class="review-span">{{json["review"]}}</span>
-        </p>
+        <div class="review-span">
+            <span>
+                <strong>Review: </strong>
+                <span id="user-rating" class="review-star"> {%if json["rating"]%}{{json["rating"]}} / 5.0 {%else%} 0.00 / 5.0 {%endif%}</span>
+                <span id="user-date-post">{{json["date"]}}</span>
+            </span>
+        </div>
+        <div>
+            <p id="review-container" rows="4" cols="50">
+                <span id ="my_review_text" class="review-span">{{json["review"]}}</span>
+            </p>
+        </div>
     </div>
 
     <div id='submit_review_text'>
@@ -42,7 +50,9 @@
                 <button class="btn btn-primary" type="button" id="edit-button">Edit Review</button>
                 <button class="btn btn-primary" type="button" id="delete-button">Delete Review</button>
     </div>
-
+    <div class="padding-top-div">
+        <strong class>Other Users Reviews:</strong>
+    </div>
     <div id="other-user-reviews-ctn">
     </div>
 {% endblock %}
