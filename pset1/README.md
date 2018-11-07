@@ -5,7 +5,9 @@ Web Programming with Python Flask Framework and JavaScript
 Note:
 Technically Project 1 does not require the use of JavaScript, but relying on pure static page rendering via Flask.
 However, my version incorporates JavaScript, while satisfying the scope of the project. Also I did not use PostSQL, but SQLite
-since it was more convenient. However in exchange for that convenience, something inconvenient happens later.
+since it was more convenient. However in exchange for that convenience, something inconvenient happens later. FYI, the only prior
+experience I have to web programming is the initial cs50 course. If you see something that is abnormal for a beginner, it's probably
+because it was something I adapted from stackoverflow, and other sources, not without understanding of course.
 
 Brief Summary:
 Database Folder -
