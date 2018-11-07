@@ -89,11 +89,22 @@ def search():
     return jsonify({"data" : data, "page_list" : page_list})
 
 
-@app.route("/getrawreview")
+@app.route("/api", methods = ["GET"])
 @login_required
-def getrawreview():
-    isbn = request.form.get("isbn")
-    return jsonify({"data": fetch_table(isbn)})
+def getapi():
+    try:
+        isbn = request.args.get("isbn")
+    except:
+        return render_template("getapi.html")
+
+    get_review = getBookReviewAPI(isbn)
+    if get_review:
+        query = Books.query.filter_by(isbn = isbn).first().dictFormat()
+        for item in get_review["books"]:
+            query["review_counts"] = item["reviews_count"]
+            query["average_score"] = item["average_rating"]
+        return render_template("getapi.html", json = query)
+    return render_template("getapi.html")
 
 
 
