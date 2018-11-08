@@ -29,3 +29,6 @@ app.config["SECRET_KEY"] = 'secret_key_gen_12345676!!!3345' #use if not using Se
 
 socketio = SocketIO(app)
 
+#hardcoded remote localhost link to run code.
+print("Link: https://ide50-jan-wu.cs50.io:8080/")
+

@@ -5,15 +5,34 @@
 {% endblock %}
 
 {% block main %}
-<div>
-    <form id="search_bar" autocomplete="off">
-                <div class="input-group">
-                    <input class="form-control" id="book" placeholder="Type Something" type="text"/>
-                    <span class = "input-group-btn">
-                        <button class="btn btn-primary" type="submit">Click me</button>
-                    </span>
+<div class='overlay' id='overlay'>
+
+        <form id="setusername" autocomplete="off">
+            <div id="popupheader">
+                <h1>Set Username</h1>
+            </div>
+            <div class = "popupcontentpadding">
+            <label><b>Username:</b></label>
+                <div class="form-group">
+                    <input type='text' placeholder='Set your username' id="usernameinput" required>
                 </div>
-    </form>
+                <button type='submit' class='ctm-btn'>Set username</button>
+            </div>
+        </form>
+
+</div>
+
+<div>
+    <ul class ="nav nav-pills navbar-dark bg-dark">
+        <li><a class="nav-link waves-effect waves-light" href="#">Link 1</a></li>
+        <li><a class="nav-link waves-effect waves-light" href="#">Link 2</a></li>
+        <li><a class="nav-link waves-effect waves-light" href="#">Link 3</a></li>
+    </ul>
+</div>
+<div id="chat-display-area">
+</div>
+<div id="bottom-div">
+    <textarea id="user-input-field"></textarea>
 </div>
 
 {% endblock %}
