@@ -4,6 +4,7 @@ from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
+from flask_socketio import SocketIO, emit
 
 
 app = Flask(__name__)
@@ -33,3 +34,5 @@ app.secret_key = "463e07020e43de2e932516aa6e853350" #use if not using Session(ap
 
 #init database
 db = SQLAlchemy(app)
+#socket isn't explicitly used, but this keeps python from crashing due to some unknown issues with Flask, and SocketIO lib.
+socketio = SocketIO(app)
