@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+        <!-- documentation at http://getbootstrap.com/docs/4.0/, alternative themes at https://bootswatch.com/4-alpha/ -->
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link href="/static/mstyle.css" rel="stylesheet"/>
+
+
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
+          <!-- https://github.com/corejavascript/typeahead.js/blob/master/doc/jquery_typeahead.md -->
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+        <script src="/static/ctmscript.js"></script>
+        <title>CS50W FLACK: {% block title %}{% endblock%}</title>
+    </head>
+    <body>
+        <nav class="sidenav">
+            <div class="sidenav-items">
+                <ul class="nav-stack">
+                    <li id="userfield" class='white-txt border-btm'><i class="fa fa-users" aria-hidden="true"></i><span id="username"></span></li>
+                    <li><a class="navbar-brand" href="/">Flack</a></li>
+                    <li><a class="nav-link waves-effect waves-light" href="/about">About</a></li>
+                </ul>
+            </div>
+        </nav>
+        <main id="main" class="main">
+            {% block main %}{% endblock %}
+        </main>
+    </body>
+</html>

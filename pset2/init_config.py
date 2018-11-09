@@ -1,11 +1,9 @@
-import asyncio
+import os
 from flask import Flask, redirect, flash, render_template, request, session, jsonify
 from flask_session import Session
-from flask_sqlalchemy import SQLAlchemy
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_socketio import SocketIO, emit
-
 
 app = Flask(__name__)
 
@@ -26,13 +24,11 @@ def after_request(response):
 app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/users.db' #default database
-app.config["SQLALCHEMY_BINDS"] = {'books' : 'sqlite:///database/books.db'}#additional databases, these need bind keys
-app.secret_key = "463e07020e43de2e932516aa6e853350" #use if not using Session(app)
+app.config["SECRET_KEY"] = 'secret_key_gen_12345676!!!3345' #use if not using Session(app)
 #Session(app) #use if not using secret_key
 
-
-#init database
-db = SQLAlchemy(app)
-#socket isn't explicitly used, but this keeps python from crashing due to some unknown issues with Flask, and SocketIO lib.
 socketio = SocketIO(app)
+
+#hardcoded remote localhost link to run code.
+print("Link: https://ide50-jan-wu.cs50.io:8080/")
+
