@@ -1,14 +1,21 @@
 
+#ctn-1
+{
+    position: absolute;
+    top: 30%;
+    left:5%;
+    right:5%;
+}
 #setusername
 {
     position: absolute;
     border: solid;
     border-color: #808080;
     box-shadow: 0px 1px 1px 1px #6f6d6d;
-    left: 0px;
-    right: 0px;
     width: 300px;
     height: 300px;
+    left: 0px;
+    right: 0px;
     top: 0px;
     bottom: 0px;
     margin: auto;
@@ -16,11 +23,17 @@
 
 #popupheader
 {
-    position: relative;
+    position: absolute;
     background: #00af00;
     box-shadow: 0px 1px 1px 1px #038603;
     color: #ffffff;
     text-align: center;
+    width:100%;
+}
+
+#popup-title
+{
+    font-size: 24px;
 }
 
 #bottom-div
@@ -29,6 +42,12 @@
     height:50px;
     position:absolute;
     bottom:0;
+}
+
+#usernameinput
+{
+    width:100%;
+    font-size:24px;
 }
 
 #user-input-field
@@ -50,7 +69,6 @@
     position: absolute;
     top:0;
     right:0;
-    margin-bottom: 20px;
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
     width:10%;
@@ -126,6 +144,7 @@
 {
     padding-left: 5px;
     padding-right: 6px;
+
 }
 .border-btm
 {
@@ -145,7 +164,7 @@
 .overlay
 {
     display: none;
-    position: fixed;
+    position: absolute;
     left: 0px;
     right: 0px;
     top: 0px;
@@ -153,10 +172,7 @@
     z-index: 999;
 }
 
-.popupcontentpadding
-{
-    padding: 10px;
-}
+
 
 .white-txt
 {
@@ -164,6 +180,17 @@
 
 }
 
+.ctm-btn
+{
+    position: absolute;
+    right:0;
+    font-size: 30px;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: #ffffff;
+    padding-left: 10px;
+    padding-right: 10px;
+}
 
 
 .top-align
@@ -200,12 +227,15 @@ body
 {
     position:absolute;
     top:0;
-    margin-left: 0px;
+    left:0;
 }
 
 .nav-stack
 {
-    margin-right:10px;
+    position:absolute;
+    top:0;
+    left:0;
+    margin-left:0px;
 }
 
 .sidenav #userfield
@@ -236,9 +266,40 @@ body
     width:         calc(100% - 160px);
 }
 
-@media screen and (max-height: 450px) {
-    .sidenav {padding-top: 15px;}
-    .sidenav a {font-size: 18px;}
+
+@media screen and (max-width:767px), screen and (max-device-width:767px) {
+    .sidenav {
+        padding-top: 10px;
+        width: 100px;
+
+    }
+    .sidenav a {font-size: 12px;}
+    .main{
+        margin-left:100px;
+        width: -webkit-calc(100% - 100px);
+        width:    -moz-calc(100% - 100px);
+        width:         calc(100% - 100px);
+            }
+    .ctm-btn
+    {
+         font-size: 16px;
+         padding-left: 10px;
+         padding-right: 10px;
+    }
+    #setusername
+    {
+        width:250px;
+        height:150px;
+    }
+    #usernameinput
+    {
+        font-size: 16px;
+    }
+    #popup-title
+    {
+        font-size: 16px;
+    }
+
 }
 
 ul

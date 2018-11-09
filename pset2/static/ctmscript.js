@@ -1,35 +1,61 @@
+window.mobilecheck = function() {
+  var check = false;
+  if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) )
+  {
+     check = true;
+  }
+  return check;
+};
+
+
 
 document.addEventListener("DOMContentLoaded", function()
 {
        Init_Config();
 
-       if (!localStorage.getItem("username"))
+
+       if(window.mobilecheck())
        {
-              document.getElementById('main-container').setAttribute('class', 'blur');
-              document.getElementById('overlay').style.display = "block";
-              document.querySelector('#setusername').onsubmit = () =>
-              {
-                     document.getElementById('usernamepopup').style.display = "none";
-                     let username = document.querySelector('#usernameinput').value;
-                     localStorage.setItem("username", username);
-                     document.querySelector("#username").innerHTML = username;
-                     document.getElementById('main-container').setAttribute('class', null);
-              }
+              document.getElementById('send-btn').innerHTML = "+";
+              returningUserCheck();
+              SendMessage();
        }
        else
-              document.querySelector("#username").innerHTML = " " + localStorage.getItem("username");
+       {
+              returningUserCheck();
+              WindowResizeEvent();
+              SendMessage()
 
-       WindowResizeEvent();
-       SendMessage()
+              //genertic protocol to set up a socket
+              var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
-       //genertic protocol to set up a socket
-       var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
-
-        //function
-       socket.on('connect', () => {
-       //Do something booaaah
-       });
+               //function
+              socket.on('connect', () => {
+              //Do something booaaah
+              });
+       }
 });
+
+
+returningUserCheck = () =>
+{
+        if (!localStorage.getItem("username"))
+              {
+                     document.getElementById('main-container').setAttribute('class', 'blur');
+                     document.getElementById('overlay').style.display = "block";
+                     document.querySelector('#setusername').onsubmit = () =>
+                     {
+                            document.getElementById('overlay').style.display = "none";
+                            let username = document.querySelector('#usernameinput').value;
+                            localStorage.setItem("username", username);
+                            document.querySelector("#username").innerHTML = username;
+                            document.getElementById('main-container').setAttribute('class', null);
+                     }
+              }
+              else
+                     document.querySelector("#username").innerHTML = " " + localStorage.getItem("username");
+}
+
 
 function Init_Config()
 {
@@ -94,3 +120,5 @@ function RequestAjax(link, params, callbackfunction, method='POST')
        }
        request.send(data);
 }
+
+

@@ -9,39 +9,39 @@
 
         <form id="setusername" autocomplete="off">
             <div id="popupheader">
-                <h1>Set Username</h1>
+                <span id="popup-title">Set Username</span>
             </div>
-            <div class = "popupcontentpadding">
-            <label><b>Username:</b></label>
+            <div id="ctn-1">
                 <div class="form-group">
                     <input type='text' placeholder='Set your username' id="usernameinput" required>
                 </div>
-                <button type='submit' class='ctm-btn'>Set username</button>
+                <button type='submit' class='ctm-btn'>Set</button>
             </div>
         </form>
 
 </div>
-
-<div id="top-nav">
-    <ul class ="nav nav-pills navbar-dark bg-dark">
-        <li><span class="border-right"><a class="ctm-nav-link white-txt" href="#">Link 1</a></span></li>
-        <li><span class="border-right"><a class="ctm-nav-link white-txt" href="#">Link 2</a></span></li>
-        <li><span class="border-right"><a class="ctm-nav-link white-txt" href="#">Link 3</a></span></li>
-    </ul>
-</div>
-
-<div id="chat-display-area">
-    <div id="chat-display">
-
+<div id = "main-container">
+    <div id="top-nav">
+        <ul class ="nav nav-pills navbar-dark bg-dark">
+            <li><span class="border-right"><a class="ctm-nav-link white-txt" href="#">Link 1</a></span></li>
+            <li><span class="border-right"><a class="ctm-nav-link white-txt" href="#">Link 2</a></span></li>
+            <li><span class="border-right"><a class="ctm-nav-link white-txt" href="#">Link 3</a></span></li>
+        </ul>
     </div>
-</div>
-<div id="bottom-div">
-    <form id="user-input-field" autocomplete="off">
-        <div>
-            <textarea type = 'text' placeholder='Message' id='message-input' rows="1"></textarea>
-            <button type='submit' id='send-btn'>Send</button>
+
+    <div id="chat-display-area">
+        <div id="chat-display">
+
         </div>
-    </form>
+    </div>
+    <div id="bottom-div">
+        <form id="user-input-field" autocomplete="off">
+            <div>
+                <textarea type = 'text' placeholder='Message' id='message-input' rows="1"></textarea>
+                <button type='submit' id='send-btn'>Send</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 {% endblock %}
