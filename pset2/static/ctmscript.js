@@ -1,5 +1,7 @@
+
 document.addEventListener("DOMContentLoaded", function()
 {
+       Init_Config();
 
        if (!localStorage.getItem("username"))
        {
@@ -17,6 +19,9 @@ document.addEventListener("DOMContentLoaded", function()
        else
               document.querySelector("#username").innerHTML = " " + localStorage.getItem("username");
 
+       WindowResizeEvent();
+       SendMessage()
+
        //genertic protocol to set up a socket
        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
@@ -26,7 +31,50 @@ document.addEventListener("DOMContentLoaded", function()
        });
 });
 
+function Init_Config()
+{
+       windowheight = documentHeight();
+       navbarheight= document.getElementById('top-nav').offsetHeight;
+       messagebarheight = document.getElementById('bottom-div').offsetHeight;
+       height = windowheight - (navbarheight + messagebarheight);
+       document.getElementById('chat-display-area').style.marginTop = String(navbarheight)+"px";
+       document.getElementById('chat-display-area').style.height = String(height)+"px";
+}
 
+function WindowResizeEvent()
+{
+       window.addEventListener('resize', ()=>
+       {
+              windowheight = documentHeight();
+              navbarheight= document.getElementById('top-nav').offsetHeight;
+              messagebarheight = document.getElementById('bottom-div').offsetHeight;
+              height = windowheight - (navbarheight + messagebarheight);
+              document.getElementById('chat-display-area').style.marginTop = String(navbarheight)+"px";
+              document.getElementById('chat-display-area').style.height = String(height)+"px";
+       });
+}
+
+function documentHeight() {
+    return Math.max(
+        document.documentElement.clientHeight,
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight,
+        document.body.offsetHeight,
+        document.documentElement.offsetHeight
+    );
+}
+
+function SendMessage()
+{
+       document.querySelector('#user-input-field').onsubmit = () =>
+       {
+              message = document.getElementById('message-input').value;
+              if (message)
+                     alert(message);
+                     document.getElementById('message-input').value = "";
+              return false;
+       };
+}
 
 //Ajax
 function RequestAjax(link, params, callbackfunction, method='POST')
