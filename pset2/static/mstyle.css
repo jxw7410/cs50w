@@ -1,41 +1,4 @@
 
-#ctn-1
-{
-    position: absolute;
-    top: 30%;
-    left:5%;
-    right:5%;
-}
-#setusername
-{
-    position: absolute;
-    border: solid;
-    border-color: #808080;
-    box-shadow: 0px 1px 1px 1px #6f6d6d;
-    width: 300px;
-    height: 300px;
-    left: 0px;
-    right: 0px;
-    top: 0px;
-    bottom: 0px;
-    margin: auto;
-}
-
-#popupheader
-{
-    position: absolute;
-    background: #00af00;
-    box-shadow: 0px 1px 1px 1px #038603;
-    color: #ffffff;
-    text-align: center;
-    width:100%;
-}
-
-#popup-title
-{
-    font-size: 24px;
-}
-
 #bottom-div
 {
     width: 100%;
@@ -236,6 +199,7 @@ body
     top:0;
     left:0;
     margin-left:0px;
+    text-align: center;
 }
 
 .sidenav #userfield
@@ -267,6 +231,68 @@ body
 }
 
 
+.nav-btn
+{
+    background-color: inherit;
+    padding: 6px 8px 6px 16px;
+}
+
+.nav-btn button
+{
+    font-size: 25px;
+    color:  #818181;
+    padding: 0px;
+    background-color: inherit;
+    cursor: pointer;
+    border: none;
+}
+
+.nav-btn button:hover
+{
+    color: #f1f1f1;
+}
+
+.popupheader
+{
+    position: absolute;
+    background: #00af00;
+    box-shadow: 0px 1px 1px 1px #038603;
+    color: #ffffff;
+    text-align: center;
+    width:100%;
+}
+
+.popup-form
+{
+    position: absolute;
+    border: solid;
+    border-color: #808080;
+    box-shadow: 0px 1px 1px 1px #6f6d6d;
+    width: 300px;
+    height: 300px;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    margin: auto;
+}
+
+.popup-title
+{
+    font-size: 24px;
+}
+
+
+.ctn-1
+{
+    position: absolute;
+    top: 30%;
+    left:5%;
+    right:5%;
+}
+
+
+
 @media screen and (max-width:767px), screen and (max-device-width:767px) {
     .sidenav {
         padding-top: 10px;
@@ -286,7 +312,15 @@ body
          padding-left: 10px;
          padding-right: 10px;
     }
-    #setusername
+    .nav-stack
+    {
+        text-align:left;
+    }
+    .nav-btn button
+    {
+        font-size:12px;
+    }
+    .popup-form
     {
         width:250px;
         height:150px;
@@ -295,7 +329,7 @@ body
     {
         font-size: 16px;
     }
-    #popup-title
+    .popup-title
     {
         font-size: 16px;
     }

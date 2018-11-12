@@ -3,7 +3,7 @@ from flask import Flask, redirect, flash, render_template, request, session, jso
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room, leave_room
 
 app = Flask(__name__)
 
