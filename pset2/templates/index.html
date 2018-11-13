@@ -12,7 +12,7 @@
             </div>
             <div class="ctn-1">
                 <div class="form-group">
-                    <input type='text' placeholder='Set your username' id="usernameinput" required>
+                    <input type='text' placeholder='Set your username' class='popup-input' id="usernameinput" required>
                 </div>
                 <button type='submit' class='ctm-btn'>Set</button>
             </div>
@@ -26,23 +26,33 @@
         </div>
         <div class="ctn-1">
                 <div class="form-group">
-                    <input type='text' placeholder='Channel name' id="channel-name-input" required>
+                    <input type='text' placeholder='Channel name' class='popup-input' id="channel-name-input" required>
                 </div>
                 <button type='submit'>Create</button>
-                <button>Cancel</button>
+                <button class = "popup-cancel-btn">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<div class='overlay' id="join-ch">
+    <form class='popup-form' id="join-ch-form" autocomplete="off">
+        <div class="popupheader">
+            <span class="popup-title">Join Channel</span>
+        </div>
+        <div class="ctn-1">
+                <div class="form-group">
+                    <input type='text' placeholder='Channel name' class='popup-input' id="join-input" required>
+                </div>
+                <button type='submit'>Join</button>
+                <button class = "popup-cancel-btn">Cancel</button>
         </div>
     </form>
 </div>
 
 
-
 <div id = "main-container">
-    <div id="top-nav">
-        <ul class ="nav nav-pills navbar-dark bg-dark">
-            <li><span class="border-right"><a class="ctm-nav-link white-txt" href="#">Link 1</a></span></li>
-            <li><span class="border-right"><a class="ctm-nav-link white-txt" href="#">Link 2</a></span></li>
-            <li><span class="border-right"><a class="ctm-nav-link white-txt" href="#">Link 3</a></span></li>
-        </ul>
+    <div id="top-nav" class ="navbar-dark bg-dark">
+        <span id='chat-name' class = 'white-txt'></span>
     </div>
 
     <div id="chat-display-area">

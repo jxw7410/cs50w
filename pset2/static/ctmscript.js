@@ -14,23 +14,53 @@ document.addEventListener("DOMContentLoaded", function()
 {
        console.log("begin");
        Init_Config();
-
+       var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
        if(window.mobilecheck())
        {
               document.getElementById('send-btn').innerHTML = "+";
               returningUserCheck();
-              SendMessage();
+              SendMessage(socket);
+              ReceivedMessage(socket);
+              SetCurrentChannel(socket);
+              JoinChannel(socket);
+              popupcancel(socket);
        }
        else
        {
               returningUserCheck();
               WindowResizeEvent();
-              var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
               SetCurrentChannel(socket);
-              SendMessage();
+              JoinChannel(socket)
+              SendMessage(socket);
+              ReceivedMessage(socket);
+              popupcancel();
 
        }
 });
+
+
+popupcancel = () =>
+{
+       items = document.getElementsByClassName("popup-cancel-btn");
+       for(var i = 0; i < items.length; i++)
+       {
+              items[i].addEventListener('click', () =>
+              {
+                     console.log("cancel button pressed");
+                     popupcancelfunc();
+                     return false;
+              });
+       }
+}
+
+popupcancelfunc = () =>
+{
+       items = document.getElementsByClassName('overlay');
+       for(var i = 0; i < items.length; i++)
+       {
+              items[i].style.display = "none";
+       }
+}
 
 
 returningUserCheck = () =>
@@ -54,7 +84,7 @@ returningUserCheck = () =>
 }
 
 
-function Init_Config()
+Init_Config = () =>
 {
        windowheight = documentHeight();
        navbarheight= document.getElementById('top-nav').offsetHeight;
@@ -64,7 +94,7 @@ function Init_Config()
        document.getElementById('chat-display-area').style.height = String(height)+"px";
 }
 
-function WindowResizeEvent()
+WindowResizeEvent = () =>
 {
        window.addEventListener('resize', ()=>
        {
@@ -78,7 +108,8 @@ function WindowResizeEvent()
        });
 }
 
-function documentHeight() {
+documentHeight = () =>
+{
     return Math.max(
         document.documentElement.clientHeight,
         document.body.scrollHeight,
@@ -88,24 +119,25 @@ function documentHeight() {
     );
 }
 
-function SetCurrentChannel(socket)
+SetCurrentChannel = (socket) =>
 {
        document.getElementById("create_chan_btn").addEventListener('click', function()
        {
+              popupcancelfunc();
               document.getElementById('create-ch').style.display = 'block';
               document.querySelector('#create-ch-form').onsubmit = () =>
               {
                      channel = document.getElementById('channel-name-input').value;
-                     console.log(channel);
-                     socket.emit('Create Channel', {"name" : channel});
+                     socket.emit('Create Channel', {"channel" : channel});
                      socket.once('Initializing Channel', data=>
                      {
                             if(data["channel"])
                             {
                                    localStorage.setItem("currentChannel", data["channel"]);
+                                   document.getElementById('chat-name').innerHTML = "Chatroom: " + channel;
                             }
                             else
-                                   alert("Channel already exists");
+                                   alert("Channel already exist.");
                             document.getElementById('create-ch').style.display = 'none';
                      });
 
@@ -115,17 +147,44 @@ function SetCurrentChannel(socket)
        });
 }
 
-function SendMessage()
+JoinChannel = (socket) =>
+{
+
+       document.getElementById('join_chan_btn').addEventListener('click', () =>
+       {
+              popupcancelfunc();
+              document.getElementById('join-ch').style.display = 'block';
+              document.querySelector('#join-ch-form').onsubmit = () =>
+              {
+                     channel = document.getElementById('join-input').value;
+                     socket.emit('Join Channel', {"channel" : channel});
+                     socket.once('Joining Channel', data =>
+                     {
+                            if(data["request"])
+                            {
+                                   localStorage.setItem("currentChannel", channel);
+                                   document.getElementById('chat-name').innerHTML = "Chatroom: " + channel;
+                            }
+                            else
+                                   alert("Channel does not exist.");
+                            document.getElementById('join-ch').style.display = 'none';
+                     });
+                     return false;
+              }
+              return false;
+       });
+}
+
+SendMessage = (socket) =>
 {
        document.querySelector('#user-input-field').onsubmit = () =>
        {
-              if (localStorage.getItem('currentChannel'))
+              channel = localStorage.getItem('currentChannel');
+              if (channel)
               {
                      message = document.getElementById('message-input').value;
-                     if (message)
-                            alert(message);
+                     socket.emit("Send Message", {"channel" : channel, "message" : message});
 
-                           document.getElementById('message-input').value = "";
               }
               else
                      alert("Not subscribed to a channel, please create, or join a channel.");
@@ -134,3 +193,16 @@ function SendMessage()
        };
 }
 
+ReceivedMessage = (socket) =>
+{
+
+       socket.on('Message Added', data =>
+       {
+              console.log(data)
+              if(data["confirm"])
+              {
+                     html = "<div class='chatbubble'>" + data["message"] + "</div>";
+                     document.getElementById('chat-display').innerHTML += html;
+              }
+       });
+}
