@@ -104,7 +104,7 @@ returningUserCheck = (socket) =>
                      channel = localStorage.getItem("currentChannel");
                      if(channel)
                      {
-                            socket.emit('join_channel', {"channel" : channel, "prev_channel" : ""});
+                            socket.emit('join_channel', {"user": localStorage.getItem("username"), "channel" : channel, "prev_channel" : ""});
                             socket.once('joined_channel', data =>
                             {
                                    if(data["request"])
@@ -152,7 +152,8 @@ SetCurrentChannel = (socket) =>
               {
                      channel = document.getElementById('channel-name-input').value;
                      prev_channel = localStorage.getItem("currentChannel");
-                     socket.emit('create_channel', {"channel" : channel, "prev_channel" : prev_channel});
+                     user = localStorage.getItem("username");
+                     socket.emit('create_channel', {"user" : user, "channel" : channel, "prev_channel" : prev_channel});
                      socket.once('init_channel', data=>
                      {
                             if(data["channel"])
@@ -182,7 +183,8 @@ JoinChannel = (socket) =>
               {
                      channel = document.getElementById('join-input').value;
                      prev_channel = localStorage.getItem("currentChannel");
-                     socket.emit('join_channel', {"channel" : channel, "prev_channel" : prev_channel});
+                     user = localStorage.getItem("username");
+                     socket.emit('join_channel', {"user" : user, "channel" : channel, "prev_channel" : prev_channel});
                      socket.once('joined_channel', data =>
                      {
                             if(data["request"])
@@ -257,7 +259,7 @@ ReceivedMessage = (socket) =>
               if(data["confirm"])
               {
 
-                     html = "<div class='chatbubble-padding'><div class='namebubble'>Some</div><div class='chatbubble'>"
+                     html = "<div class='chatbubble-padding'><div class='namebubble'>"+ data["user"]+"</div><div class='chatbubble'>"
                             + data["message"] + "</div><div class='time-stamp'>11:11:11</div></div>";
                      document.getElementById('current-chat').innerHTML += html;
                      $('#current-chat').scrollTop($('#current-chat')[0].scrollHeight);
