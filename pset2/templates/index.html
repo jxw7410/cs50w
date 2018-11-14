@@ -5,43 +5,81 @@
 {% endblock %}
 
 {% block main %}
-<div class='overlay' id='overlay'>
-
-        <form id="setusername" autocomplete="off">
-            <div id="popupheader">
-                <h1>Set Username</h1>
+<div class='overlay' id='signup'>
+        <form class='popup-form' id="setusername" autocomplete="off">
+            <div class="popupheader">
+                <span class="popup-title">Set Username</span>
             </div>
-            <div class = "popupcontentpadding">
-            <label><b>Username:</b></label>
+            <div class="ctn-1">
                 <div class="form-group">
-                    <input type='text' placeholder='Set your username' id="usernameinput" required>
+                    <input type='text' placeholder='Set your username' class='popup-input' id="usernameinput" required>
+                    <div>
+                        <button type='submit' class='ctm-btn'>Set</button>
+                    </div>
                 </div>
-                <button type='submit' class='ctm-btn'>Set username</button>
             </div>
         </form>
-
 </div>
 
-<div id="top-nav">
-    <ul class ="nav nav-pills navbar-dark bg-dark">
-        <li><span class="border-right"><a class="ctm-nav-link white-txt" href="#">Link 1</a></span></li>
-        <li><span class="border-right"><a class="ctm-nav-link white-txt" href="#">Link 2</a></span></li>
-        <li><span class="border-right"><a class="ctm-nav-link white-txt" href="#">Link 3</a></span></li>
-    </ul>
-</div>
-
-<div id="chat-display-area">
-    <div id="chat-display">
-
-    </div>
-</div>
-<div id="bottom-div">
-    <form id="user-input-field" autocomplete="off">
-        <div>
-            <textarea type = 'text' placeholder='Message' id='message-input' rows="1"></textarea>
-            <button type='submit' id='send-btn'>Send</button>
+<div class='overlay' id="create-ch">
+    <form class='popup-form' id="create-ch-form" autocomplete="off">
+        <div class="popupheader">
+            <span class="popup-title">Create Channel</span>
+        </div>
+        <div class="ctn-1">
+                <div class="form-group">
+                    <input type='text' placeholder='Channel name' class='popup-input' id="channel-name-input" required>
+                    <div>
+                        <button type='submit'>Create</button>
+                    </div>
+                    <div>
+                        <button class = "popup-cancel-btn" type="button">Cancel</button>
+                    </div>
+                </div>
         </div>
     </form>
+</div>
+
+<div class='overlay' id="join-ch">
+    <form class='popup-form' id="join-ch-form" autocomplete="off">
+        <div class="popupheader">
+            <span class="popup-title">Join Channel</span>
+        </div>
+        <div class="ctn-1">
+                <div class="form-group">
+                    <input type='text' placeholder='Channel name' class='popup-input' id="join-input" required>
+                    <div>
+                        <button type='submit'>Join</button>
+                    </div>
+                    <div>
+                        <button class = "popup-cancel-btn" type="button">Cancel</button>
+                    </div>
+                </div>
+        </div>
+    </form>
+</div>
+
+
+<div id = "main-container">
+    <div id="top-nav" class ="navbar-dark bg-dark">
+        <span id='chat-name' class = 'white-txt'></span>
+    </div>
+
+    <div id="chat-display-area">
+        <div id="chat-display">
+            <div id = "current-chat">
+
+            </div>
+        </div>
+    </div>
+    <div id="bottom-div">
+        <form id="user-input-field" autocomplete="off">
+            <div>
+                <textarea type = 'text' placeholder='Message' id='message-input' rows="1" required></textarea>
+                <button type='submit' id='send-btn' autofocus>Send</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 {% endblock %}

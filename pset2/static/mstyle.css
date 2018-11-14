@@ -1,34 +1,20 @@
 
-#setusername
+#chat-name
 {
-    position: absolute;
-    border: solid;
-    border-color: #808080;
-    box-shadow: 0px 1px 1px 1px #6f6d6d;
-    left: 0px;
-    right: 0px;
-    width: 300px;
-    height: 300px;
-    top: 0px;
-    bottom: 0px;
-    margin: auto;
+    padding-left:10px;
 }
-
-#popupheader
-{
-    position: relative;
-    background: #00af00;
-    box-shadow: 0px 1px 1px 1px #038603;
-    color: #ffffff;
-    text-align: center;
-}
-
 #bottom-div
 {
     width: 100%;
     height:50px;
     position:absolute;
     bottom:0;
+}
+
+#usernameinput
+{
+    width:100%;
+    font-size:24px;
 }
 
 #user-input-field
@@ -50,7 +36,6 @@
     position: absolute;
     top:0;
     right:0;
-    margin-bottom: 20px;
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
     width:10%;
@@ -60,11 +45,17 @@
     height:40px;
     border-style: none;
     outline:none;
+
 }
 
-#send-btn:focus
+#send-btn:hover
 {
     box-shadow: 0 0 0 2px #00bfff;
+}
+
+#send-btn:active
+{
+    box-shadow: 0 0 0 2px #ffffff;
 }
 
 #message-input
@@ -78,6 +69,8 @@
     height:40px;
     outline:none;
     padding-left: 10px;
+    font-size: 16px;
+    overflow: hidden;
 }
 
 #message-input:focus
@@ -89,6 +82,7 @@
 {
     position:absolute;
     width: 100%;
+    height:100%;
 }
 
 #chat-display
@@ -105,8 +99,69 @@
     border-left:solid;
     border-right:solid;
     border-color:#e2dfdf;
+    padding: 5px;
 }
 
+#current-chat
+{
+    position: absolute;
+    bottom:0;
+    height: 100%;
+    overflow: auto;
+    width: -webkit-calc(100% - 10px);
+    width:    -moz-calc(100% - 10px);
+    width:         calc(100% - 10px);
+    padding: 5px;
+}
+
+.chatbubble-padding
+{
+    padding: 5px;
+
+}
+.chatbubble
+{
+    margin-top:20px;
+    position: relative;
+    padding: 10px;
+    width: -webkit-calc(100%);
+    width:    -moz-calc(100%);
+    width:         calc(100%);
+    background-color: #065a82;
+    border-radius: 12px;
+    color: #ffffff;
+    word-wrap: break-word;
+}
+
+
+.namebubble
+{
+    position: absolute;;
+    width: -webkit-calc(10%);
+    width:    -moz-calc(10%);
+    width:         calc(10%);
+    border: solid;
+    border-radius:20px;
+    z-index: 1;
+    background-color:white;
+    word-wrap:break-word;
+    text-align:center;
+
+}
+.time-stamp
+{
+    position: absolute;
+    right:0;
+    width: -webkit-calc(10%);
+    width:    -moz-calc(10%);
+    width:         calc(10%);
+    border-radius:20px;
+    z-index: 1;
+    background-color:white;
+    word-wrap:break-word;
+    text-align:center;
+    font-size:12px;
+}
 
 #top-nav
 {
@@ -127,6 +182,13 @@
     padding-left: 5px;
     padding-right: 6px;
 }
+
+#top-nav span
+{
+    margin-left: 5px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
 .border-btm
 {
     border-bottom: solid;
@@ -142,28 +204,11 @@
 }
 
 
-.overlay
-{
-    display: none;
-    position: fixed;
-    left: 0px;
-    right: 0px;
-    top: 0px;
-    bottom: 0px;
-    z-index: 999;
-}
-
-.popupcontentpadding
-{
-    padding: 10px;
-}
-
 .white-txt
 {
     color: #ffffff;
 
 }
-
 
 
 .top-align
@@ -200,12 +245,16 @@ body
 {
     position:absolute;
     top:0;
-    margin-left: 0px;
+    left:0;
 }
 
 .nav-stack
 {
-    margin-right:10px;
+    position:absolute;
+    top:0;
+    left:0;
+    margin-left:0px;
+    text-align: center;
 }
 
 .sidenav #userfield
@@ -236,9 +285,144 @@ body
     width:         calc(100% - 160px);
 }
 
-@media screen and (max-height: 450px) {
-    .sidenav {padding-top: 15px;}
-    .sidenav a {font-size: 18px;}
+
+.nav-btn
+{
+    background-color: inherit;
+    padding: 6px 8px 6px 16px;
+}
+
+.nav-btn button
+{
+    font-size: 25px;
+    color:  #818181;
+    padding: 0px;
+    background-color: inherit;
+    cursor: pointer;
+    border: none;
+}
+
+.nav-btn button:hover
+{
+    color: #f1f1f1;
+}
+
+
+.overlay
+{
+    display: none;
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    z-index: 10;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+
+.popupheader
+{
+    position: absolute;
+    background: #00af00;
+    box-shadow: 0px 1px 1px 1px #038603;
+    color: #ffffff;
+    text-align: center;
+    width:100%;
+}
+
+.popup-form
+{
+    position: absolute;
+    border: solid;
+    border-color: #808080;
+    box-shadow: 0px 1px 1px 1px #6f6d6d;
+    width: 300px;
+    height: 300px;
+    margin: auto;
+}
+
+.popup-title
+{
+    font-size: 24px;
+}
+
+
+.ctn-1
+{
+    position: absolute;
+    top: 30%;
+    left:5%;
+    right:5%;
+}
+
+.ctm-btn
+{
+    position: absolute;
+    right:0;
+    font-size: 30px;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: #ffffff;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.form-group div
+{
+    float:left;
+    padding-top:5px;
+    padding-right:5px;
+}
+
+.popup-cancel-btn
+{
+    position:absolute
+}
+
+
+@media screen and (max-width:767px), screen and (max-device-width:767px) {
+    .sidenav {
+        padding-top: 10px;
+        width: 100px;
+
+    }
+    .sidenav a {font-size: 12px;}
+    .main{
+        margin-left:100px;
+        width: -webkit-calc(100% - 100px);
+        width:    -moz-calc(100% - 100px);
+        width:         calc(100% - 100px);
+            }
+    .ctm-btn
+    {
+         font-size: 16px;
+         padding-left: 10px;
+         padding-right: 10px;
+    }
+    .nav-stack
+    {
+        text-align:left;
+    }
+    .nav-btn button
+    {
+        font-size:12px;
+    }
+    .popup-form
+    {
+        width:250px;
+        height:150px;
+    }
+    .popup-input
+    {
+        font-size: 16px;
+    }
+    .popup-title
+    {
+        font-size: 16px;
+    }
+
 }
 
 ul
