@@ -13,8 +13,10 @@
             <div class="ctn-1">
                 <div class="form-group">
                     <input type='text' placeholder='Set your username' class='popup-input' id="usernameinput" required>
+                    <div>
+                        <button type='submit' class='ctm-btn'>Set</button>
+                    </div>
                 </div>
-                <button type='submit' class='ctm-btn'>Set</button>
             </div>
         </form>
 </div>
@@ -27,9 +29,13 @@
         <div class="ctn-1">
                 <div class="form-group">
                     <input type='text' placeholder='Channel name' class='popup-input' id="channel-name-input" required>
+                    <div>
+                        <button type='submit'>Create</button>
+                    </div>
+                    <div>
+                        <button class = "popup-cancel-btn" type="button">Cancel</button>
+                    </div>
                 </div>
-                <button type='submit'>Create</button>
-                <button class = "popup-cancel-btn">Cancel</button>
         </div>
     </form>
 </div>
@@ -42,9 +48,13 @@
         <div class="ctn-1">
                 <div class="form-group">
                     <input type='text' placeholder='Channel name' class='popup-input' id="join-input" required>
+                    <div>
+                        <button type='submit'>Join</button>
+                    </div>
+                    <div>
+                        <button class = "popup-cancel-btn" type="button">Cancel</button>
+                    </div>
                 </div>
-                <button type='submit'>Join</button>
-                <button class = "popup-cancel-btn">Cancel</button>
         </div>
     </form>
 </div>
@@ -57,14 +67,16 @@
 
     <div id="chat-display-area">
         <div id="chat-display">
+            <div id = "current-chat">
 
+            </div>
         </div>
     </div>
     <div id="bottom-div">
         <form id="user-input-field" autocomplete="off">
             <div>
-                <textarea type = 'text' placeholder='Message' id='message-input' rows="1"></textarea>
-                <button type='submit' id='send-btn'>Send</button>
+                <textarea type = 'text' placeholder='Message' id='message-input' rows="1" required></textarea>
+                <button type='submit' id='send-btn' autofocus>Send</button>
             </div>
         </form>
     </div>

@@ -1,3 +1,8 @@
+
+#chat-name
+{
+    padding-left:10px;
+}
 #bottom-div
 {
     width: 100%;
@@ -40,11 +45,17 @@
     height:40px;
     border-style: none;
     outline:none;
+
 }
 
-#send-btn:focus
+#send-btn:hover
 {
     box-shadow: 0 0 0 2px #00bfff;
+}
+
+#send-btn:active
+{
+    box-shadow: 0 0 0 2px #ffffff;
 }
 
 #message-input
@@ -58,6 +69,8 @@
     height:40px;
     outline:none;
     padding-left: 10px;
+    font-size: 16px;
+    overflow: hidden;
 }
 
 #message-input:focus
@@ -69,6 +82,7 @@
 {
     position:absolute;
     width: 100%;
+    height:100%;
 }
 
 #chat-display
@@ -85,23 +99,68 @@
     border-left:solid;
     border-right:solid;
     border-color:#e2dfdf;
-    overflow-y: auto;
     padding: 5px;
 }
 
+#current-chat
+{
+    position: absolute;
+    bottom:0;
+    height: 100%;
+    overflow: auto;
+    width: -webkit-calc(100% - 10px);
+    width:    -moz-calc(100% - 10px);
+    width:         calc(100% - 10px);
+    padding: 5px;
+}
+
+.chatbubble-padding
+{
+    padding: 5px;
+
+}
 .chatbubble
 {
-    position:relative;
-    left:0px;
-    bottom:0px;
-    padding: 5px;
-    width: -webkit-calc(100% - 20px);
-    width:    -moz-calc(100% - 20px);
-    width:         calc(100% - 20px);
-    background-color: azure;
-    border: solid;
-    border-color:azure;
+    margin-top:20px;
+    position: relative;
+    padding: 10px;
+    width: -webkit-calc(100%);
+    width:    -moz-calc(100%);
+    width:         calc(100%);
+    background-color: #065a82;
     border-radius: 12px;
+    color: #ffffff;
+    word-wrap: break-word;
+}
+
+
+.namebubble
+{
+    position: absolute;;
+    width: -webkit-calc(10%);
+    width:    -moz-calc(10%);
+    width:         calc(10%);
+    border: solid;
+    border-radius:20px;
+    z-index: 1;
+    background-color:white;
+    word-wrap:break-word;
+    text-align:center;
+
+}
+.time-stamp
+{
+    position: absolute;
+    right:0;
+    width: -webkit-calc(10%);
+    width:    -moz-calc(10%);
+    width:         calc(10%);
+    border-radius:20px;
+    z-index: 1;
+    background-color:white;
+    word-wrap:break-word;
+    text-align:center;
+    font-size:12px;
 }
 
 #top-nav
@@ -310,10 +369,16 @@ body
     padding-right: 10px;
 }
 
+.form-group div
+{
+    float:left;
+    padding-top:5px;
+    padding-right:5px;
+}
+
 .popup-cancel-btn
 {
-    position:absolute;
-
+    position:absolute
 }
 
 

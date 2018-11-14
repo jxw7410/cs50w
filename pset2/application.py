@@ -1,47 +1,20 @@
-from init_config import *
-
-class Channel:
-    _size_limit_ = 100
-    name = ""
-    messages = []
-
-    def __init__(self, name):
-        self.name = name
-
-    def add_message(self, message):
-        if len(self.messages) == self._size_limit_:
-            self.messages.pop(0)
-            self.messages.append(message)
-        else:
-            self.messages.append(message)
+from classes import *
+from threading import Lock
 
 
-class Channels:
-    channels = {}
-
-    def add_channel(self, Channel):
-        if not Channel.name in self.channels:
-            self.channels[Channel.name] = Channel
-        else:
-            raise Channels.ChannelExistException
-
-    def display_channels(self):
-        return [*channels]
-
-    def add_message(self, Channel, message):
-        self.channels[Channel].add_message(message)
-
-    def is_channel(self, channel_name):
-        if channel_name in self.channels:
-            return True;
-        return False;
-
-    class ChannelExistException(Exception):
-        pass
+thread = None
+thread_lock = Lock()
 
 #Global Variable to store all generate channels
 app_channels = Channels()
 
+#not important, just testing something with multiple threads
+def background_thread():
+    count = 0
+    while True:
+        socketio.sleep(10)
+        count += 1
+        socketio.emit('my_response', {'data' : "Server generated event", 'count' : count})
 
 @app.route("/")
 def index():
@@ -49,44 +22,59 @@ def index():
 
 @socketio.on('connect')
 def test_connection():
-    return emit('my response', {'data': 'Connected'})
+    global thread
+    with thread_lock:
+        if thread is None:
+            thread = socketio.start_background_task(target=background_thread)
+    print(request.sid, " has connected")
+    return emit('connection', {'data': 'Connected'})
 
-@socketio.on("Create Channel")
+@socketio.on('disconnect')
+def disconnect():
+    print(request.sid, " has disconnected")
+
+@socketio.on("create_channel")
 def create_channel(packet):
     channelname = packet["channel"]
+    prev_channel = packet["prev_channel"]
     channel = Channel(channelname)
     try:
         app_channels.add_channel(channel)
     except app_channels.ChannelExistException:
-        return emit("Initializing Channel", {"channel" : False})
-
+        return emit("init_channel", {"channel" : False})
     #create room if not exist, and join it
     #roomname collision avoided due to code above
     user_id = request.sid
+    leave_room(prev_channel, user_id)
     join_room(channelname, user_id)
 
-    return emit("Initializing Channel", {"channel" : channelname}, room=channelname)
+    emit("init_channel", {"channel" : channelname}, room=channelname)
 
 
-@socketio.on("Join Channel")
+@socketio.on("join_channel")
 def join_channel(packet):
     channelname = packet["channel"]
+    prev_channel = packet["prev_channel"]
     if app_channels.is_channel(channelname):
         user_id = request.sid
+        leave_room(prev_channel, user_id)
         join_room(channelname, user_id)
-        return emit("Joining Channel", {"request" : True})
-    return emit("Joining Channel", {"request" : False})
+        return emit("joined_channel", {"request" : True})
 
-@socketio.on("Display Channels")
+    emit("joined_channel", {"request" : False})
+
+@socketio.on("display_channels")
 def display_channels():
-    return emit("Displaying Channels", {"channels" : app_channels.display_channels()})
+    emit("display_channels", {"channels" : app_channels.display_channels()})
 
-@socketio.on("Send Message")
+@socketio.on("send_message")
 def message_send(packet):
     channelname = packet["channel"]
     message = packet["message"]
-    app_channels.add_message(channelname, message)
-    return emit("Message Added", {"confirm" : True, "message" : message}, room=channelname)
+    if message:
+        return emit("receive_message", {"confirm" : True, "message" : message}, room=channelname)
+    emit("receive_message", {"confirm" : False})
+
 
 if __name__ == "__main__":
-    socketio.run(app)
+    socketio.run(app, debug = True)
