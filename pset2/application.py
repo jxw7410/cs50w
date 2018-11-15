@@ -45,10 +45,8 @@ def create_channel(packet):
         return emit("missing_arg_error", {"errorcode" : 100})
 
     try:
-        print(channel_name)
         app_channels.add_channel(channel_name, user, request.sid)
     except app_channels.ChannelExistException:
-        print('Channel does not exist error')
         return emit("init_channel", {"channel" : False})
 
     emit("init_channel", {"channel" : channel_name}, room=channel_name)
@@ -90,7 +88,6 @@ def message_send(packet):
     channelname = app_channels.users_ref[request.sid]
     if request.sid in app_channels.channels[channelname].users:
         user = app_channels.channels[channelname].users[request.sid]
-        print("Message sent to:", channelname)
         return emit("receive_message", {"user": user, "confirm" : True, "message" : message}, room=channelname)
 
 
