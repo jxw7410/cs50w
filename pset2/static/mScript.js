@@ -104,7 +104,7 @@ returningUserCheck = (socket) =>
                      channel = localStorage.getItem("currentChannel");
                      if(channel)
                      {
-                            socket.emit('join_channel', {"user": localStorage.getItem("username"), "channel" : channel, "prev_channel" : ""});
+                            socket.emit('join_channel', {"user": localStorage.getItem("username"), "channel" : channel});
                             socket.once('joined_channel', data =>
                             {
                                    if(data["request"])
@@ -151,9 +151,8 @@ SetCurrentChannel = (socket) =>
               document.querySelector('#create-ch-form').onsubmit = () =>
               {
                      channel = document.getElementById('channel-name-input').value;
-                     prev_channel = localStorage.getItem("currentChannel");
                      user = localStorage.getItem("username");
-                     socket.emit('create_channel', {"user" : user, "channel" : channel, "prev_channel" : prev_channel});
+                     socket.emit('create_channel', {"user" : user, "channel" : channel });
                      socket.once('init_channel', data=>
                      {
                             if(data["channel"])
@@ -182,9 +181,8 @@ JoinChannel = (socket) =>
               document.querySelector('#join-ch-form').onsubmit = () =>
               {
                      channel = document.getElementById('join-input').value;
-                     prev_channel = localStorage.getItem("currentChannel");
                      user = localStorage.getItem("username");
-                     socket.emit('join_channel', {"user" : user, "channel" : channel, "prev_channel" : prev_channel});
+                     socket.emit('join_channel', {"user" : user, "channel" : channel});
                      socket.once('joined_channel', data =>
                      {
                             if(data["request"])

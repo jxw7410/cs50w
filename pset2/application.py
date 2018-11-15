@@ -1,11 +1,9 @@
 from classes import *
-from threading import Lock
+
 
 class NoMessageError(Exception):
     pass
 
-thread = None
-thread_lock = Lock()
 
 #Global Variable to store all generate channels
 app_channels = Channels()
@@ -33,47 +31,45 @@ def test_connection():
 
 @socketio.on('disconnect')
 def ping_disconnect():
+    app_channels.disconnect_handler(request.sid)
     print(request.sid, " has disconnected")
 
 @socketio.on("create_channel")
 def create_channel(packet):
     try:
         user = packet["user"]
-        channelname = packet["channel"]
-        if not user or not channelname:
+        channel_name = packet["channel"]
+        if not user or not channel_name:
             raise TypeError
     except TypeError:
         return emit("missing_arg_error", {"errorcode" : 100})
-    except:
-        return
 
-    channelobj = Channel(channelname)
     try:
-        app_channels.add_channel(channelobj)
-        app_channels.channels[channelobj.name].add_user(request.sid, user, packet["prev_channel"], channelname)
+        print(channel_name)
+        app_channels.add_channel(channel_name, user, request.sid)
     except app_channels.ChannelExistException:
+        print('Channel does not exist error')
         return emit("init_channel", {"channel" : False})
 
-    emit("init_channel", {"channel" : channelname}, room=channelname)
+    emit("init_channel", {"channel" : channel_name}, room=channel_name)
 
 
 @socketio.on("join_channel")
 def join_channel(packet):
     try:
         user = packet["user"]
-        channelname = packet["channel"]
-        if not user or not channelname:
+        channel_name = packet["channel"]
+        if not user or not channel_name:
             raise TypeError
     except TypeError:
         return emit("missing_arg_error", {"errorcode" : -101})
-    except:
-        return emit("unknown_error")
 
-    if app_channels.is_channel(channelname):
-        app_channels.channels[channelname].add_user(request.sid, user, packet["prev_channel"], channelname)
-        return emit("joined_channel", {"request" : True})
+    try:
+        app_channels.join_to_channel(channel_name, user, request.sid)
+    except app_channels.ChannelNotExistException:
+        return emit("joined_channel", {"request" : False})
 
-    emit("joined_channel", {"request" : False})
+    emit("joined_channel", {"request" : True})
 
 @socketio.on("display_channels")
 def display_channels():
@@ -82,10 +78,7 @@ def display_channels():
 @socketio.on("send_message")
 def message_send(packet):
     try:
-        channelname = packet["channel"]
         message = packet["message"]
-        if channelname is None:
-            raise TypeError
         if message is None:
             raise NoMessageError
     except TypeError:
@@ -94,9 +87,10 @@ def message_send(packet):
         return
     except:
         return emit("unknown_error")
-
-    if request.sid in app_channels.channels[channelname].user:
-        user = app_channels.channels[channelname].user[request.sid]
+    channelname = app_channels.users_ref[request.sid]
+    if request.sid in app_channels.channels[channelname].users:
+        user = app_channels.channels[channelname].users[request.sid]
+        print("Message sent to:", channelname)
         return emit("receive_message", {"user": user, "confirm" : True, "message" : message}, room=channelname)
 
 
