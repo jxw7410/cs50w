@@ -5,8 +5,6 @@ class NoMessageError(Exception):
     pass
 
 
-#Global Variable to store all generate channels
-app_channels = Channels()
 
 #not important, just testing something with multiple threads
 def background_thread():
@@ -63,7 +61,9 @@ def join_channel(packet):
         return emit("missing_arg_error", {"errorcode" : -101})
 
     try:
+        print("before join", app_channels.users_ref)
         app_channels.join_to_channel(channel_name, user, request.sid)
+        print("after join", app_channels.users_ref)
     except app_channels.ChannelNotExistException:
         return emit("joined_channel", {"request" : False})
 
@@ -77,7 +77,7 @@ def display_channels():
 def message_send(packet):
     try:
         message = packet["message"]
-        if message is None:
+        if message is "":
             raise NoMessageError
     except TypeError:
         return emit("missing_arg_error", {"errorcode" : -102})
@@ -85,10 +85,23 @@ def message_send(packet):
         return
     except:
         return emit("unknown_error")
+
     channelname = app_channels.users_ref[request.sid]
-    if request.sid in app_channels.channels[channelname].users:
-        user = app_channels.channels[channelname].users[request.sid]
-        return emit("receive_message", {"user": user, "confirm" : True, "message" : message}, room=channelname)
+    channel = app_channels.channels[channelname]
+
+    print(channel.last_request.request_id == request.sid)
+
+    if channel.last_request.request_id == request.sid and not channel.last_request.is_minute():
+        merge = True
+    else:
+        merge = False
+
+    channel.last_request.time = time.time()
+    channel.last_request.request_id = request.sid
+
+    if request.sid in channel.users:
+        user = channel.users[request.sid]
+        return emit("receive_message", {"user": user, "confirm" : True, "message" : message, "merge" : merge}, room=channelname)
 
 
 

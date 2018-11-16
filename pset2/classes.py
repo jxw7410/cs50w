@@ -1,20 +1,20 @@
 from init_config import *
+import time
 
 class Channel:
     #public variables
     #const static ref
     _size_limit_ = 100
-    #stores channel name
-    name = ""
-    #stores up to 100 messages in channel
-    messages = []
-    #list of users relative to their username
-    users={}
 
     def __init__(self, name):
+        #stores channel name
         self.name = name
+        #list of users relative to their username
         self.users = {}
+        #stores up to 100 messages in channel
         self.messages=[]
+        #stores instance of last request
+        self.last_request = self.Last_Request()
 
     def add_message(self, message):
         if len(self.messages) == self._size_limit_:
@@ -32,6 +32,15 @@ class Channel:
     def remove_user(self, sessionid):
         del self.users[sessionid]
 
+    class Last_Request:
+        time = 0
+        request_id = ""
+        def is_minute(self):
+            self.time = int(time.time() - self.time)
+            print(self.time)
+            if self.time >= 60:
+                return True
+            return False
 
 class Channels:
     #public variables
@@ -68,9 +77,11 @@ class Channels:
         #if channel to join does not exist, raise exception
         if not channel_name in self.channels:
             raise self.ChannelNotExistException
+
         try:
             prev_channel = self.users_ref[user_id]
         except KeyError:
+            print("error 701: KeyError of Prev Channel")
             prev_channel=""
         #add user to the other channel
 
@@ -79,6 +90,7 @@ class Channels:
         try:
             self.channels[prev_channel].remove_user(user_id)
         except KeyError:
+            print("error 702: KeyError of Removing User from Prec Channel")
             pass
         #store or reassign the user_id with a reference to the active channel
         self.users_ref[user_id] = channel_name
@@ -91,6 +103,7 @@ class Channels:
             channelname = self.users_ref[user_id]
             self.channels[channelname].remove_user(user_id)
             del self.users_ref[user_id]
+            print(self.users_ref)
         except KeyError:
             pass
 
@@ -110,3 +123,7 @@ class Channels:
 
     class ChannelNotExistException(Exception):
         pass
+
+#init global instance of my class
+app_channels = Channels()
+

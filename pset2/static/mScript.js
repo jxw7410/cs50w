@@ -21,12 +21,12 @@ Init_Config = () =>
 
 document.addEventListener("DOMContentLoaded", function()
 {
-
        Init_Config();
        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
        socket.on('connection', data =>
        {
               console.log(data);
+              returningUserCheck(socket);
        });
 
        socket.on('my_response', data=>
@@ -37,25 +37,18 @@ document.addEventListener("DOMContentLoaded", function()
        if(window.mobilecheck())
        {
               document.getElementById('send-btn').innerHTML = "+";
-              returningUserCheck(socket);
-              SendMessage(socket);
-              ReceivedMessage(socket);
-              SetCurrentChannel(socket);
-              JoinChannel(socket);
-              popupcancel(socket);
        }
        else
        {
-              returningUserCheck(socket);
               WindowResizeEvent();
-              SetCurrentChannel(socket);
-              JoinChannel(socket)
-              SendMessage(socket);
-              ReceivedMessage(socket);
-              popupcancel();
               KeySendMessage(socket);
        }
 
+       SendMessage(socket);
+       ReceivedMessage(socket);
+       SetCurrentChannel(socket);
+       JoinChannel(socket);
+       popupcancel(socket);
 });
 
 
@@ -109,11 +102,11 @@ returningUserCheck = (socket) =>
                             {
                                    if(data["request"])
                                           document.getElementById('chat-name').innerHTML = "Chatroom: " + channel;
+                                   else
+                                          document.getElementById('chat-name').innerHTML = "";
                             });
                      }
-
               }
-
 }
 
 
@@ -159,6 +152,7 @@ SetCurrentChannel = (socket) =>
                             {
                                    localStorage.setItem("currentChannel", data["channel"]);
                                    document.getElementById('chat-name').innerHTML = "Chatroom: " + channel;
+                                   loadchathistory();
                             }
                             else
                                    alert("Channel already exist.");
@@ -189,6 +183,7 @@ JoinChannel = (socket) =>
                             {
                                    localStorage.setItem("currentChannel", channel);
                                    document.getElementById('chat-name').innerHTML = "Chatroom: " + channel;
+                                   loadchathistory();
                             }
                             else
                                    alert("Channel does not exist.");
@@ -223,7 +218,6 @@ SendMessage = (socket) =>
 
 KeySendMessage = (socket) =>
 {
-
        document.getElementById("message-input").addEventListener("keypress", function(event)
        {
           console.log("sending message");
@@ -244,23 +238,33 @@ KeySendMessage = (socket) =>
           }
           return false;
        });
-
-
 }
 
 ReceivedMessage = (socket) =>
 {
-
        socket.on('receive_message', data =>
        {
               console.log(data)
               if(data["confirm"])
               {
-
-                     html = "<div class='chatbubble-padding'><div class='namebubble'>"+ data["user"]+"</div><div class='chatbubble'>"
-                            + data["message"] + "</div><div class='time-stamp'>11:11:11</div></div>";
-                     document.getElementById('current-chat').innerHTML += html;
+                     if(data["merge"])
+                     {
+                            console.log(document.getElementById('current-chat').lastChild.childNodes);
+                            document.getElementById('current-chat').lastChild.childNodes[1].innerHTML += "<br\>" + data["message"];
+                     }
+                     else
+                     {
+                            html = "<div class='chatbubble-padding'><div class='namebubble'>"+ data["user"]+"</div><div class='chatbubble'>"
+                                   + data["message"] + "</div><div class='time-stamp'>11:11:11</div></div>";
+                            document.getElementById('current-chat').innerHTML += html;
+                     }
                      $('#current-chat').scrollTop($('#current-chat')[0].scrollHeight);
               }
        });
+}
+
+
+function loadchathistory()
+{
+       document.getElementById('current-chat').innerHTML = "";
 }

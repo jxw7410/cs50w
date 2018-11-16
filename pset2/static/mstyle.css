@@ -326,8 +326,8 @@ body
 .popupheader
 {
     position: absolute;
-    background: #00af00;
-    box-shadow: 0px 1px 1px 1px #038603;
+    background-color: #343a40;
+    box-shadow: 0px 1px 1px 1px #343a40;
     color: #ffffff;
     text-align: center;
     width:100%;
