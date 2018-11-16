@@ -3,9 +3,9 @@ from flask import Flask, redirect, flash, render_template, request, session, jso
 from flask_session import Session
 from tempfile import mkdtemp
 from flask_socketio import SocketIO, emit, join_room, leave_room, close_room, rooms, disconnect
+from threading import Lock
 
 app = Flask(__name__)
-
 app.after_request
 def after_request(response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
@@ -25,6 +25,8 @@ app.config["SESSION_TYPE"] = "filesystem"
 app.config["SECRET_KEY"] = "It's a secret for a reason."
 
 socketio = SocketIO(app, async_mode=None)
+thread = None
+thread_lock = Lock()
 
 #hardcoded remote localhost link to run code.
 print("Link: https://ide50-jan-wu.cs50.io:8080/")
